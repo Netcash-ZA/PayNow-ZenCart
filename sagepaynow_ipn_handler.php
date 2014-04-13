@@ -8,15 +8,17 @@
 
 //// bof: Load ZenCart configuration
 $show_all_errors = false;
+
 $current_page_base = 'sagepaynowipn';
 $loaderPrefix = 'sagepaynow_ipn';
+
 require_once( 'includes/configure.php' );
 require_once( 'includes/application_top.php' );
 require_once( DIR_WS_CLASSES .'payment.php' );
 
 $zcSessName = '';
 $zcSessID = '';
-//// eof: Load ZenCart configuration
+// eof: Load ZenCart configuration
 
     $show_all_errors = true;
     $logdir = defined('DIR_FS_LOGS') ? DIR_FS_LOGS : 'includes/modules/payment/sagepaynow';
@@ -26,8 +28,7 @@ $zcSessID = '';
     @ini_set('display_errors', 0); // do not output errors to screen/browser/client (only to log file)
     @ini_set('error_log', DIR_FS_CATALOG . $debug_logfile_path);
     error_reporting(version_compare(PHP_VERSION, 5.3, '>=') ? E_ALL & ~E_DEPRECATED & ~E_NOTICE : version_compare(PHP_VERSION, 5.4, '>=') ? E_ALL & ~E_DEPRECATED & ~E_NOTICE & ~E_STRICT : E_ALL & ~E_NOTICE);
-
-
+    
 // Variable Initialization
 $pnError = false;
 $pnErrMsg = '';

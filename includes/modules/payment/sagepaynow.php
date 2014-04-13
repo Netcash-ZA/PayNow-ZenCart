@@ -667,9 +667,9 @@ class sagepaynow extends base
         // Variable initialization
         $keys = array(
             'MODULE_PAYMENT_SAGEPAYNOW_STATUS',
-            'MODULE_PAYMENT_SAGEPAYNOW_MERCHANT_ID',
+            
             'MODULE_PAYMENT_SAGEPAYNOW_MERCHANT_KEY',
-            'MODULE_PAYMENT_SAGEPAYNOW_SERVER',
+            
             'MODULE_PAYMENT_SAGEPAYNOW_SORT_ORDER',
             'MODULE_PAYMENT_SAGEPAYNOW_ZONE',
             'MODULE_PAYMENT_SAGEPAYNOW_PREPARE_ORDER_STATUS_ID',

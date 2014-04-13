@@ -153,7 +153,7 @@ $autoLoadConfig[70][] = array(
     'loadFile'=> 'init_sessions.php' );
 $autoLoadConfig[71][] = array(
     'autoType'=>'init_script',
-    'loadFile'=> 'init_sagepaynow_itn_sessions.php' );
+    'loadFile'=> 'init_sagepaynow_ipn_sessions.php' );
 
 /**
  * Breakpoint 80.
