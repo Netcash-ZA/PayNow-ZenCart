@@ -2,7 +2,7 @@
 /**
  * sagepaynow_ipn_handler
  *
- * Callback handler for Sage Pay Now IPN
+ * Callback handler for Sage Pay Now IPN 
  *
  */
 
