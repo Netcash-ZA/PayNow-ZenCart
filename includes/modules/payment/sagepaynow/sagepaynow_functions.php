@@ -28,7 +28,6 @@ define( 'PN_FORMAT_TIMESTAMP', 'YmdHis' );
 define( 'PN_SESSION_LIFE', 7 );         // # of days session is saved for
 define( 'PN_SESSION_EXPIRE_PROB', 5 );  // Probability (%) of deleting expired sessions
 
-// {{{ pn_createUUID()
 /**
  * pn_createUUID
  *
@@ -46,8 +45,7 @@ function pn_createUUID()
 
     return( $uuid );
 }
-// }}}
-// {{{ pn_getActiveTable()
+
 /**
  * pn_getActiveTable
  *
@@ -65,12 +63,11 @@ function pn_getActiveTable()
 
     return( $table );
 }
-// }}}
-// {{{ pn_createOrderArray()
+
 /**
  * pn_createOrderArray
  *
- * Creates the array used to create a Sage Pay now order
+ * Creates the array used to create a Sage Pay Now order
  *
  * @param $pnData Array Array of posted Sage Pay Now data
  * @param $zcOrderId Integer Order ID for Zen Cart order
@@ -80,7 +77,7 @@ function pn_createOrderArray( $pnData = null, $zcOrderId = null, $timestamp = nu
 {
     // Variable initialization
     $ts = empty( $timestamp ) ? time() : $timestamp;
-
+	// TODO Some variables here out of scope
     $sqlArray = array(
         'm_payment_id' => $pnData['m_payment_id'],
         'pn_payment_id' => $pnData['pn_payment_id'],
@@ -97,8 +94,7 @@ function pn_createOrderArray( $pnData = null, $zcOrderId = null, $timestamp = nu
 
     return( $sqlArray );
 }
-// }}}
-// {{{ pn_determineTxnType()
+
 /**
  * pn_lookupTransaction
  *
@@ -155,8 +151,7 @@ function pn_lookupTransaction( $pnData = null )
 
     return( array_values( $data ) );
 }
-// }}}
-// {{{ pn_createOrderHistoryArray()
+
 /**
  * pn_createOrderHistoryArray
  *

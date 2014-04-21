@@ -28,6 +28,7 @@ if( !$_POST )
         'Most likely initiated by browser and not Sage Pay Now.' );
 }
 
+// TODO Is this sent or received? Should change to m4 or Extra1
 $session_post = isset( $_POST['custom_str1']) ? $_POST['custom_str1'] : '=' ;
 $session_stuff = explode( '=', $session_post );
 $itnFoundSession = true;

@@ -62,11 +62,7 @@ class sagepaynow extends base
         // Set payment module title in Admin
         if( IS_ADMIN_FLAG === true )
         {
-            $this->title = MODULE_PAYMENT_SAGEPAYNOW_TEXT_ADMIN_TITLE;
-
-            // Check if in test mode
-            if( IS_ADMIN_FLAG === true && MODULE_PAYMENT_SAGEPAYNOW_SERVER == 'Test' )
-                $this->title .= '<span class="alert"> (test mode active)</span>';
+            $this->title = MODULE_PAYMENT_SAGEPAYNOW_TEXT_ADMIN_TITLE;            
         }
         // Set payment module title in Catalog
         else
@@ -86,12 +82,7 @@ class sagepaynow extends base
             $this->update_status();
 
         // Set posting destination destination
-        if( MODULE_PAYMENT_SAGEPAYNOW_SERVER == 'Test' )
-            $this->form_action_url = 'https://' . MODULE_PAYMENT_SAGEPAYNOW_SERVER_TEST;
-        else
-            $this->form_action_url = 'https://' . MODULE_PAYMENT_SAGEPAYNOW_SERVER_LIVE;
-
-        $this->form_action_url .= '/eng/process';
+        $this->form_action_url = 'https://paynow.sagepay.co.za/site/paynow.aspx';        
 
         // Check for right version
         if( PROJECT_VERSION_MAJOR != '1' && substr( PROJECT_VERSION_MINOR, 0, 3 ) != '3.9' )
@@ -220,25 +211,15 @@ class sagepaynow extends base
         $data = array();
         $buttonArray = array();
 
-        // Use appropriate merchant identifiers
-        // Live
-        // TODO Remove Live / Sandbox code
-        if( MODULE_PAYMENT_SAGEPAYNOW_SERVER == 'Live' )
-        {
-            $merchantId = MODULE_PAYMENT_SAGEPAYNOW_MERCHANT_ID; 
-            $merchantKey = MODULE_PAYMENT_SAGEPAYNOW_MERCHANT_KEY;
-        }
-        // Sandbox
-        else
-        {
-            $merchantId = '10000100';
-            $merchantKey = '46f0cd694581a'; 
-        }
+        // Sage Pay Now identifiers
+         
+		$serviceKey = MODULE_PAYMENT_SAGEPAYNOW_MERCHANT_KEY;
+		$vendorKey = '24ade73c-98cf-47b3-99be-cc7b867b3080';       
         
         // Create URLs
         $returnUrl = zen_href_link( FILENAME_CHECKOUT_PROCESS, 'referer=sagepaynow', 'SSL' );
         $cancelUrl = zen_href_link( FILENAME_CHECKOUT_PAYMENT, '', 'SSL' );
-        $notifyUrl = zen_href_link( 'sagepaynnow_itn_handler.php', '', 'SSL', false, false, true );
+        $notifyUrl = zen_href_link( 'sagepaynnow_ipn_handler.php', '', 'SSL', false, false, true );
 
         //// Set the currency and get the order amount
         $currency = 'ZAR';
@@ -297,12 +278,12 @@ class sagepaynow extends base
         $db->Execute( $sql );
 
 
-        //// Set the data
+        // Set the data
         $mPaymentId = pn_createUUID();
         $data = array(
-            // Merchant fields
-            'merchant_id' => $merchantId,
-            'merchant_key' => $merchantKey,
+            // Merchant fields            
+            'm1' => $serviceKey,
+        	'm2' => $vendorKey,	
             'return_url' => $returnUrl,
             'cancel_url' => $cancelUrl,
             'notify_url' => $notifyUrl,
@@ -313,18 +294,19 @@ class sagepaynow extends base
             'email_address' => $order->customer['email_address'],
 
             // Item Details
-            'item_name' => MODULE_PAYMENT_SAGEPAYNOW_PURCHASE_DESCRIPTION_TITLE . $mPaymentId,
-            'item_description' => $description,
-            'amount' => number_format( $this->transaction_amount, $currencyDecPlaces, '.', '' ),
-            'm_payment_id' => $mPaymentId,
-            'currency_code' => $currency,
-            'custom_str1' => zen_session_name() .'='. zen_session_id(),
+            'p3' => MODULE_PAYMENT_SAGEPAYNOW_PURCHASE_DESCRIPTION_TITLE . $mPaymentId,
+        	// [item_description] => 1 x Strong Widget = 10.00; 1 x Widget = 10.00; Shipping = 5.00; Total= 25.00;
+            // 'item_description' => $description,
+            'p4' => number_format( $this->transaction_amount, $currencyDecPlaces, '.', '' ),
+            'p2' => $mPaymentId,
+            //'currency_code' => $currency,
+            'm4' => zen_session_name() .'='. zen_session_id(),
             
             // Other details
             'user_agent' => PN_USER_AGENT,
             );
 
-        pnlog( "Data to send:\n". print_r( $data, true ) );
+        pnlog( "Data to send (location process_button):\n". print_r( $data, true ) );
 
 
         //// Check the data and create the process button array
@@ -357,7 +339,7 @@ class sagepaynow extends base
         pnlog( $pre.'bof' );
 
         // Variable initialization
-        global $db, $order_total_modules;
+        global $db, $order_total_modules; 
 
         // If page was called correctly with "referer" tag
         if( isset( $_GET['referer'] ) && strcasecmp( $_GET['referer'], 'sagepaynow' ) == 0 )

@@ -8,7 +8,7 @@
 define( 'PN_SOFTWARE_NAME', 'ZenCart' );
 define( 'PN_SOFTWARE_VER', PROJECT_VERSION_MAJOR . '.' . PROJECT_VERSION_MINOR );
 define( 'PN_MODULE_NAME', 'SagePayNow-ZenCart_1_0' );
-define( 'PN_MODULE_VER', '1.0' );
+define( 'PN_MODULE_VER', '1.0.0' );
 
 // Features
 // - PHP
@@ -39,7 +39,7 @@ define( 'PN_ERR_BAD_SOURCE_IP', 'Bad source IP address' );
 define( 'PN_ERR_CONNECT_FAILED', 'Failed to connect to Sage Pay Now' );
 define( 'PN_ERR_INVALID_SIGNATURE', 'Security signature mismatch' );
 define( 'PN_ERR_MERCHANT_ID_MISMATCH', 'Merchant ID mismatch' );
-define( 'PN_ERR_NO_SESSION', 'No saved session found for ITN transaction' );
+define( 'PN_ERR_NO_SESSION', 'No saved session found for IPN transaction' );
 define( 'PN_ERR_ORDER_ID_MISSING_URL', 'Order ID not present in URL' );
 define( 'PN_ERR_ORDER_ID_MISMATCH', 'Order ID mismatch' );
 define( 'PN_ERR_ORDER_INVALID', 'This order ID is invalid' );
@@ -104,7 +104,7 @@ function pnlog( $msg = '', $close = false )
  */
 function pnGetData()
 {
-    // Posted variables from ITN
+    // Posted variables from IPN
     $pnData = $_POST;
 
     // Strip any slashes in data
@@ -116,168 +116,6 @@ function pnGetData()
         return( false );
     else
         return( $pnData );
-}
-
-/**
- * pnValidSignature
- * 
- */
-function pnValidSignature( $pnData = null, &$pnParamString = null )
-{
-    // Dump the submitted variables and calculate security signature
-    foreach( $pnData as $key => $val )
-    {
-        if( $key != 'signature' )
-        {
-            $pnParamString .= $key .'='. urlencode( $val ) .'&';
-        }
-        else
-        {
-            break;
-        }
-    }
-
-    // Remove the last '&' from the parameter string
-    $pnParamString = substr( $pnParamString, 0, -1 );
-    $signature = md5( $pnParamString );
-    
-    $result = ( $pnData['signature'] == $signature );
-
-    pnlog( 'Signature = '. ( $result ? 'valid' : 'invalid' ) );
-
-    return( $result );
-}
-
-/**
- * pnValidData
- *
- * @param $pnHost String Hostname to use 
- * @param $pnParamString String Parameter string to send
- * @param $proxy String Address of proxy to use or NULL if no proxy
- * 
- * TODO Strip this function, not needed
- */
-function pnValidData( $pnHost = 'www.sagepaynow.co.za', $pnParamString = '', $pnProxy = null )
-{
-    pnlog( 'Host = '. $pnHost );
-    pnlog( 'Params = '. $pnParamString );
-
-    // Use cURL (if available)
-    if( defined( 'PN_CURL' ) )
-    {
-        // Variable initialization
-        $url = 'https://'. $pnHost .'/eng/query/validate';
-
-        // Create default cURL object
-        $ch = curl_init();
-    
-        // Set cURL options - Use curl_setopt for freater PHP compatibility
-        // Base settings
-        curl_setopt( $ch, CURLOPT_USERAGENT, PN_USER_AGENT );  // Set user agent
-        curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );      // Return output as string rather than outputting it
-        curl_setopt( $ch, CURLOPT_HEADER, false );             // Don't include header in output
-        curl_setopt( $ch, CURLOPT_SSL_VERIFYHOST, 2 );
-        curl_setopt( $ch, CURLOPT_SSL_VERIFYPEER, false );
-        
-        // Standard settings
-        curl_setopt( $ch, CURLOPT_URL, $url );
-        curl_setopt( $ch, CURLOPT_POST, true );
-        curl_setopt( $ch, CURLOPT_POSTFIELDS, $pnParamString );
-        curl_setopt( $ch, CURLOPT_TIMEOUT, PN_TIMEOUT );
-        if( !empty( $pnProxy ) )
-            curl_setopt( $ch, CURLOPT_PROXY, $proxy );
-    
-        // Execute CURL
-        $response = curl_exec( $ch );
-        curl_close( $ch );
-    }
-    // Use fsockopen
-    else
-    {
-        // Variable initialization
-        $header = '';
-        $res = '';
-        $headerDone = false;
-         
-        // Construct Header
-        $header = "POST /eng/query/validate HTTP/1.0\r\n";
-        $header .= "Host: ". $pnHost ."\r\n";
-        $header .= "User-Agent: ". PN_USER_AGENT ."\r\n";
-        $header .= "Content-Type: application/x-www-form-urlencoded\r\n";
-        $header .= "Content-Length: " . strlen( $pnParamString ) . "\r\n\r\n";
- 
-        // Connect to server
-        $socket = fsockopen( 'ssl://'. $pnHost, 443, $errno, $errstr, PN_TIMEOUT );
- 
-        // Send command to server
-        fputs( $socket, $header . $pnParamString );
- 
-        // Read the response from the server
-        while( !feof( $socket ) )
-        {
-            $line = fgets( $socket, 1024 );
- 
-            // Check if we are finished reading the header yet
-            if( strcmp( $line, "\r\n" ) == 0 )
-            {
-                // read the header
-                $headerDone = true;
-            }
-            // If header has been processed
-            else if( $headerDone )
-            {
-                // Read the main response
-                $response .= $line;
-            }
-        }
-        
-    }
-
-    pnlog( "Response:\n". print_r( $response, true ) );
-
-    // Interpret Response
-    $lines = explode( "\r\n", $response );
-    $verifyResult = trim( $lines[0] );
-
-    if( strcasecmp( $verifyResult, 'VALID' ) == 0 )
-        return( true );
-    else
-        return( false );
-}
-
-/**
- * pnValidIP
- *
- * @param $sourceIP String Source IP address
- * 
- *  TODO Strip this function not needed
- */
-function pnValidIP( $sourceIP )
-{
-    // Variable initialization
-    $validHosts = array(
-        'www.sagepaynow.co.za'        
-        );
-
-    $validIps = array();
-
-    foreach( $validHosts as $pnHostname )
-    {
-        $ips = gethostbynamel( $pnHostname );
-
-        if( $ips !== false )
-            $validIps = array_merge( $validIps, $ips );
-    }
-
-    // Remove duplicates
-    $validIps = array_unique( $validIps );
-
-    pnlog( "Valid IPs:\n". print_r( $validIps, true ) );
-
-    if( in_array( $sourceIP, $validIps ) )
-        return( true );
-    else
-        return( false );
 }
 
 /**
