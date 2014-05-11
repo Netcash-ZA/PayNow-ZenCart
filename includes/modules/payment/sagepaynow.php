@@ -453,6 +453,8 @@ class sagepaynow extends base
      *
      * Installs Sage Pay Now payment module in Zen Cart (osCommerce) and creates necessary
      * configuration fields which need to be supplied by store owner.
+     * 
+     * TODO Remove references to MERCHANT_KEY and replace with SERVICE_KEY
      *
      * >> Standard ZenCart
      */
@@ -469,7 +471,7 @@ class sagepaynow extends base
         // MODULE_PAYMENT_SAGEPAYNOW_MERCHANT_KEY (Default = Generic sandbox credentials)
         $db->Execute(
             "INSERT INTO ". TABLE_CONFIGURATION ."( configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added )
-            VALUES( 'Merchant Key', 'MODULE_PAYMENT_SAGEPAYNOW_MERCHANT_KEY', '46f0cd694581a', 'Your Software Key from Sage Pay Now<br><span style=\"font-size: 0.9em; color: green;\">(Click <a href=\"http://www.sagepay.co.za/acc/integration\" target=\"_blank\">here</a> to get yours. This is initially set to a test value for testing purposes.)</span>', '6', '0', now() )" );        
+            VALUES( 'Sage Pay Now Service Key', 'MODULE_PAYMENT_SAGEPAYNOW_MERCHANT_KEY', '', 'Your Software Key from Sage Pay Now<br><span style=\"font-size: 0.9em; color: green;\">(Click <a href=\"http://www.sagepay.co.za/acc/integration\" target=\"_blank\">here</a> to get yours. This is initially set to a test value for testing purposes.)</span>', '6', '0', now() )" );        
         // MODULE_PAYMENT_SAGEPAYNOW_SORT_ORDER (Default = 0)
         $db->Execute(
             "INSERT INTO " . TABLE_CONFIGURATION . "( configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added )
