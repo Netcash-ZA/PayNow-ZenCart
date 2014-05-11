@@ -7,8 +7,9 @@
  */
 
 // Posting URLs
-define( 'MODULE_PAYMENT_SAGEPAYNOW_SERVER_LIVE', 'www.sagepaynow.co.za' );
-define( 'MODULE_PAYMENT_SAGEPAYNOW_SERVER_TEST', 'www.sandbox.sagepaynow.co.za' );
+// TODO Remove LIVE/TEST references as they are not used
+define( 'MODULE_PAYMENT_SAGEPAYNOW_SERVER_LIVE', 'www.sagepay.co.za' );
+define( 'MODULE_PAYMENT_SAGEPAYNOW_SERVER_TEST', 'www.sagepay.co.za' );
 
 // Database tables
 define( 'TABLE_SAGEPAYNOW', DB_PREFIX . 'sagepaynow' );

@@ -12,11 +12,11 @@ define( 'MODULE_PAYMENT_SAGEPAYNOW_TEXT_CATALOG_TITLE', 'SagePayNow' );
 if( IS_ADMIN_FLAG === true )
     define( 'MODULE_PAYMENT_SAGEPAYNOW_TEXT_DESCRIPTION',
         '<strong>Sage Pay Now</strong><br />'.
-        '<a href="https://www.sagepaynow.co.za/acc/account" target="_blank">'.
+        '<a href="https://www.sagepay.co.za/" target="_blank">'.
         'Manage your Sage Pay Now account.</a><br /><br />'.
         '<font color="green">Configuration Instructions:</font><br />'.
         '<ol style="padding-left: 20px;">'.
-        '<li><a href="http://www.sagepaynow.co.za/user/register" target="_blank">Register for a Sage Pay Now account.</a></li>'.
+        '<li><a href="http://www.sagepay.co.za/" target="_blank">Register for a Sage Pay Now account.</a></li>'.
         '<li>Click "install" above to enable Sage Pay Now support and "edit" to tell Zen Cart your Sage Pay Now settings</li>'.
         '</ol>'.
         '<font color="green"><hr /><strong>Requirements:</strong></font><br /><hr />'.
@@ -31,7 +31,7 @@ define( 'MODULE_PAYMENT_SAGEPAYNOW_BUTTON_ALT', 'Checkout with Sage Pay Now' );
 define( 'MODULE_PAYMENT_SAGEPAYNOW_ACCEPTANCE_MARK_TEXT', '' );
 
 define( 'MODULE_PAYMENT_SAGEPAYNOW_TEXT_CATALOG_LOGO',
-    '<a href="http://www.sagepaynow.co.za" style="border: 0;" target="_blank">'.
+    '<a href="http://www.sagepay.co.za" style="border: 0;" target="_blank">'.
     '<img src="'. MODULE_PAYMENT_SAGEPAYNOW_BUTTON_IMG .'"'.
     ' alt="'. MODULE_PAYMENT_SAGEPAYNOW_BUTTON_ALT .'"'.
     ' title="' . MODULE_PAYMENT_SAGEPAYNOW_BUTTON_ALT .'"'.
