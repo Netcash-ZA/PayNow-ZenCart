@@ -17,9 +17,9 @@ Download the files from Github and extract them into the corresponding folders o
 * https://github.com/SagePay/PayNow-SimpleCart/archive/master.zip
 
 There are three folders that require have files in, namely:
-> admin
-> images
-> includes
+* admin
+* images
+* includes
 
 Additionally the `sagepaynow_ipn_handler.php` needs to be installed into the root of your Zen Cart installation.
 
@@ -65,7 +65,7 @@ You are now ready to process credit card transaction with Sage Pay Now.
 Remember to turn of "Make test mode active:" in the Sage Pay backend when you are ready to go live.
 
 Here is a screenshot of the Zen Cart settings screen for the Sage Pay Now configuration:
-![alt tag](http://zencart.gatewaymodules.com/zencart_screenshot1.png)
+![alt tag](http://zencart.gatewaymodules.com/zen_cart_screenshot1.png)
 
 Demo Site
 ---------
