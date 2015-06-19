@@ -62,7 +62,7 @@ class sagepaynow extends base
         // Set payment module title in Admin
         if( IS_ADMIN_FLAG === true )
         {
-            $this->title = MODULE_PAYMENT_SAGEPAYNOW_TEXT_ADMIN_TITLE;            
+            $this->title = MODULE_PAYMENT_SAGEPAYNOW_TEXT_ADMIN_TITLE;
         }
         // Set payment module title in Catalog
         else
@@ -82,7 +82,7 @@ class sagepaynow extends base
             $this->update_status();
 
         // Set posting destination destination
-        $this->form_action_url = 'https://paynow.sagepay.co.za/site/paynow.aspx';        
+        $this->form_action_url = 'https://paynow.sagepay.co.za/site/paynow.aspx';
 
         // Check for right version
         if( PROJECT_VERSION_MAJOR != '1' && substr( PROJECT_VERSION_MINOR, 0, 3 ) != '3.9' )
@@ -212,10 +212,10 @@ class sagepaynow extends base
         $buttonArray = array();
 
         // Sage Pay Now identifiers
-         
+
 		$serviceKey = MODULE_PAYMENT_SAGEPAYNOW_MERCHANT_KEY;
-		$vendorKey = '24ade73c-98cf-47b3-99be-cc7b867b3080';       
-        
+		$vendorKey = '24ade73c-98cf-47b3-99be-cc7b867b3080';
+
         // Create URLs
         $returnUrl = zen_href_link( FILENAME_CHECKOUT_PROCESS, 'referer=sagepaynow', 'SSL' );
         $cancelUrl = zen_href_link( FILENAME_CHECKOUT_PAYMENT, '', 'SSL' );
@@ -258,15 +258,12 @@ class sagepaynow extends base
         pn_removeExpiredSessions();
         $tsExpire = strtotime( '+'. PN_SESSION_LIFE .' days' );
 
-       
+
         // Delete existing record (if it exists)
         $sql =
             "DELETE FROM ". TABLE_SAGEPAYNOW_SESSION ."
             WHERE `session_id` = '". zen_db_input( zen_session_id() ) ."'";
         $db->Execute( $sql );
-
-        // patch for multi-currency - AGB 19/07/13 - see also the ITN handler
-        $_SESSION['sagepaynow_amount'] = number_format( $this->transaction_amount, $currencyDecPlaces, '.', '' );
 
         $sql =
             "INSERT INTO ". TABLE_SAGEPAYNOW_SESSION ."
@@ -277,13 +274,39 @@ class sagepaynow extends base
                 '". date( PN_FORMAT_DATETIME_DB, $tsExpire ) ."' )";
         $db->Execute( $sql );
 
+        $order_total = 0;
+        $products = $order->products;
+
+        // products
+        for ($i = 0; $i < sizeof($products); $i++) {
+            $order_total += number_format(($currencies->get_value($order->info['currency']) * ($products[$i]['final_price'] * $products[$i]['qty'])), 2, '.', '');
+        }
+
+        // shipping
+        // if ($order->info['shipping_method']) {
+        //     $order_total += number_format(($currencies->get_value($order->info['currency']) * $order->info['shipping_cost']), 2, '.', '');
+        // }
+        // //tax
+        // if ($order->info['tax'] > 0) {
+        //     $order_total += number_format(($currencies->get_value($order->info['currency']) * $order->info['tax']), 2, '.', '');
+        // }
+        // //coupons
+        // $coupon_result = $this->check_coupons();
+        // if ($coupon_result > 0) {
+        //     $order_total -= number_format(($currencies->get_value($order->info['currency']) * $coupon_result), 2, '.', '');
+        // }
+
+        // patch for multi-currency - AGB 19/07/13 - see also the ITN handler
+        // $_SESSION['sagepaynow_amount'] = number_format( $this->transaction_amount, $currencyDecPlaces, '.', '' );
+        // $_SESSION['sagepaynow_amount'] = number_format( $order_total, $currencyDecPlaces, '.', '' );
+
 
         // Set the data
         $mPaymentId = pn_createUUID();
         $data = array(
-            // Merchant fields            
+            // Merchant fields
             'm1' => $serviceKey,
-        	'm2' => $vendorKey,	
+        	'm2' => $vendorKey,
             'return_url' => $returnUrl,
             'cancel_url' => $cancelUrl,
             'notify_url' => $notifyUrl,
@@ -293,15 +316,24 @@ class sagepaynow extends base
             'name_last' => replace_accents( $order->customer['lastname'] ),
             'email_address' => $order->customer['email_address'],
 
+            'Budget' => 'N',
+
             // Item Details
-            'p3' => MODULE_PAYMENT_SAGEPAYNOW_PURCHASE_DESCRIPTION_TITLE . $mPaymentId,
+            // 'p3' => MODULE_PAYMENT_SAGEPAYNOW_PURCHASE_DESCRIPTION_TITLE . $mPaymentId,
+            'p3' => $mPaymentId,
+
         	// [item_description] => 1 x Strong Widget = 10.00; 1 x Widget = 10.00; Shipping = 5.00; Total= 25.00;
             // 'item_description' => $description,
-            'p4' => number_format( $this->transaction_amount, $currencyDecPlaces, '.', '' ),
-            'p2' => $mPaymentId,
+
+            'p4' => number_format( $order_total, 2 ),
+            // 'p4' => number_format( $this->transaction_amount, $currencyDecPlaces, '.', '' ),
+
+            'p2' => date('Ymd-His'),
+            // 'p2' => $mPaymentId . '-' . date('Ymd'),
+
             //'currency_code' => $currency,
             'm4' => zen_session_name() .'='. zen_session_id(),
-            
+
             // Other details
             'user_agent' => PN_USER_AGENT,
             );
@@ -339,7 +371,7 @@ class sagepaynow extends base
         pnlog( $pre.'bof' );
 
         // Variable initialization
-        global $db, $order_total_modules; 
+        global $db, $order_total_modules;
 
         // If page was called correctly with "referer" tag
         if( isset( $_GET['referer'] ) && strcasecmp( $_GET['referer'], 'sagepaynow' ) == 0 )
@@ -453,7 +485,7 @@ class sagepaynow extends base
      *
      * Installs Sage Pay Now payment module in Zen Cart (osCommerce) and creates necessary
      * configuration fields which need to be supplied by store owner.
-     * 
+     *
      * TODO Remove references to MERCHANT_KEY and replace with SERVICE_KEY
      *
      * >> Standard ZenCart
@@ -467,11 +499,11 @@ class sagepaynow extends base
         // MODULE_PAYMENT_SAGEPAYNOW_STATUS (Default = False)
         $db->Execute(
             "INSERT INTO ". TABLE_CONFIGURATION ."( configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added )
-            VALUES( 'Enable Sage Pay Now?', 'MODULE_PAYMENT_SAGEPAYNOW_STATUS', 'False', 'Do you want to enable Sage Pay Now?', '6', '0', 'zen_cfg_select_option(array(\'True\', \'False\'), ', now() )" );        
+            VALUES( 'Enable Sage Pay Now?', 'MODULE_PAYMENT_SAGEPAYNOW_STATUS', 'False', 'Do you want to enable Sage Pay Now?', '6', '0', 'zen_cfg_select_option(array(\'True\', \'False\'), ', now() )" );
         // MODULE_PAYMENT_SAGEPAYNOW_MERCHANT_KEY (Default = Generic sandbox credentials)
         $db->Execute(
             "INSERT INTO ". TABLE_CONFIGURATION ."( configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added )
-            VALUES( 'Sage Pay Now Service Key', 'MODULE_PAYMENT_SAGEPAYNOW_MERCHANT_KEY', '', 'Your Software Key from Sage Pay Now<br><span style=\"font-size: 0.9em; color: green;\">(Click <a href=\"http://www.sagepay.co.za/acc/integration\" target=\"_blank\">here</a> to get yours. This is initially set to a test value for testing purposes.)</span>', '6', '0', now() )" );        
+            VALUES( 'Sage Pay Now Service Key', 'MODULE_PAYMENT_SAGEPAYNOW_MERCHANT_KEY', '', 'Your Software Key from Sage Pay Now<br><span style=\"font-size: 0.9em; color: green;\">(Click <a href=\"http://www.sagepay.co.za/acc/integration\" target=\"_blank\">here</a> to get yours. This is initially set to a test value for testing purposes.)</span>', '6', '0', now() )" );
         // MODULE_PAYMENT_SAGEPAYNOW_SORT_ORDER (Default = 0)
         $db->Execute(
             "INSERT INTO " . TABLE_CONFIGURATION . "( configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added )
@@ -623,7 +655,7 @@ class sagepaynow extends base
      * created as they will have information from past orders which is still
      * relevant and required.
      *
-     * >> Standard ZenCart     
+     * >> Standard ZenCart
      */
     function remove()
     {
@@ -643,7 +675,7 @@ class sagepaynow extends base
      *
      * Returns an array of the configuration keys for the module
      *
-     * >> Standard osCommerce     
+     * >> Standard osCommerce
      * @return array
      */
     function keys()
@@ -651,9 +683,9 @@ class sagepaynow extends base
         // Variable initialization
         $keys = array(
             'MODULE_PAYMENT_SAGEPAYNOW_STATUS',
-            
+
             'MODULE_PAYMENT_SAGEPAYNOW_MERCHANT_KEY',
-            
+
             'MODULE_PAYMENT_SAGEPAYNOW_SORT_ORDER',
             'MODULE_PAYMENT_SAGEPAYNOW_ZONE',
             'MODULE_PAYMENT_SAGEPAYNOW_PREPARE_ORDER_STATUS_ID',
