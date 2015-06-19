@@ -143,14 +143,23 @@ if (! $pnError) {
 			pnlog ( __FILE__ . ' line ' . __LINE__ );
 			// bof: Check data against ZenCart order
 			pnlog ( 'Checking data against Zen Cart order' );
-			
+
+			global $currencies;
+			$pn_order_total = 0;
+			$products = $order->products;
+
+			// products
+			for ($i = 0; $i < sizeof($products); $i++) {
+			    $pn_order_total += number_format(($currencies->get_value($order->info['currency']) * ($products[$i]['final_price'] * $products[$i]['qty'])), 2, '.', '');
+			}
+
 			// Check order amount
 			pnlog ( 'Checking if amounts are the same' );
 			// patch for multi-currency - AGB 19/07/13 - see also includes/modules/payment/sagepaynow.php
 			// if( !pnAmountsEqual( $pnData['amount_gross'], $order->info['total'] ) )
-			if (! pnAmountsEqual ( $pnData ['Amount'], $_SESSION ['sagepaynow_amount'] )) {
-				pnlog ( 'Amount mismatch: PN amount = ' . $pnData ['amount_gross'] . ', ZC amount = ' . $_SESSION ['sagepaynow_amount'] );
-				
+			if (! pnAmountsEqual ( $pnData ['Amount'], $pn_order_total )) {
+				pnlog ( 'Amount mismatch: PN amount = ' . $pnData ['Amount'] . ', ZC amount = ' . $pn_order_total );
+
 				$pnError = true;
 				$pnErrMsg = PN_ERR_AMOUNT_MISMATCH;
 				break;
@@ -332,7 +341,7 @@ if ($pnError) {
 
 	switch ($pnErrMsg) {
 		case PN_ERR_AMOUNT_MISMATCH :
-			$body .= "Value received : " . $pnData ['amount_gross'] . "\n" . "Value should be: " . $order->info ['total'];
+			$body .= "Value received : " . $pnData ['Amount'] . "\n" . "Value should be: " . $order->info ['total'];
 			break;
 
 		// For all other errors there is no need to add additional information

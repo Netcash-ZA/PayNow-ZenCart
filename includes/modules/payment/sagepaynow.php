@@ -265,9 +265,6 @@ class sagepaynow extends base
             WHERE `session_id` = '". zen_db_input( zen_session_id() ) ."'";
         $db->Execute( $sql );
 
-        // patch for multi-currency - AGB 19/07/13 - see also the ITN handler
-        $_SESSION['sagepaynow_amount'] = number_format( $this->transaction_amount, $currencyDecPlaces, '.', '' );
-
         $sql =
             "INSERT INTO ". TABLE_SAGEPAYNOW_SESSION ."
                 ( session_id, saved_session, expiry )
@@ -276,6 +273,32 @@ class sagepaynow extends base
                 '". base64_encode( serialize( $_SESSION ) ) ."',
                 '". date( PN_FORMAT_DATETIME_DB, $tsExpire ) ."' )";
         $db->Execute( $sql );
+
+        $order_total = 0;
+        $products = $order->products;
+
+        // products
+        for ($i = 0; $i < sizeof($products); $i++) {
+            $order_total += number_format(($currencies->get_value($order->info['currency']) * ($products[$i]['final_price'] * $products[$i]['qty'])), 2, '.', '');
+        }
+
+        // shipping
+        // if ($order->info['shipping_method']) {
+        //     $order_total += number_format(($currencies->get_value($order->info['currency']) * $order->info['shipping_cost']), 2, '.', '');
+        // }
+        // //tax
+        // if ($order->info['tax'] > 0) {
+        //     $order_total += number_format(($currencies->get_value($order->info['currency']) * $order->info['tax']), 2, '.', '');
+        // }
+        // //coupons
+        // $coupon_result = $this->check_coupons();
+        // if ($coupon_result > 0) {
+        //     $order_total -= number_format(($currencies->get_value($order->info['currency']) * $coupon_result), 2, '.', '');
+        // }
+
+        // patch for multi-currency - AGB 19/07/13 - see also the ITN handler
+        // $_SESSION['sagepaynow_amount'] = number_format( $this->transaction_amount, $currencyDecPlaces, '.', '' );
+        // $_SESSION['sagepaynow_amount'] = number_format( $order_total, $currencyDecPlaces, '.', '' );
 
 
         // Set the data
@@ -293,12 +316,21 @@ class sagepaynow extends base
             'name_last' => replace_accents( $order->customer['lastname'] ),
             'email_address' => $order->customer['email_address'],
 
+            'Budget' => 'N',
+
             // Item Details
-            'p3' => MODULE_PAYMENT_SAGEPAYNOW_PURCHASE_DESCRIPTION_TITLE . $mPaymentId,
+            // 'p3' => MODULE_PAYMENT_SAGEPAYNOW_PURCHASE_DESCRIPTION_TITLE . $mPaymentId,
+            'p3' => $mPaymentId,
+
         	// [item_description] => 1 x Strong Widget = 10.00; 1 x Widget = 10.00; Shipping = 5.00; Total= 25.00;
             // 'item_description' => $description,
-            'p4' => number_format( $this->transaction_amount, $currencyDecPlaces, '.', '' ),
-            'p2' => $mPaymentId,
+
+            'p4' => number_format( $order_total, 2 ),
+            // 'p4' => number_format( $this->transaction_amount, $currencyDecPlaces, '.', '' ),
+
+            'p2' => date('Ymd-His'),
+            // 'p2' => $mPaymentId . '-' . date('Ymd'),
+
             //'currency_code' => $currency,
             'm4' => zen_session_name() .'='. zen_session_id(),
 
