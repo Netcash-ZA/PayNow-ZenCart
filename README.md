@@ -1,7 +1,7 @@
 Sage Pay Now Zen Cart Credit Card Payment Module
 ================================================
 
-Revision 1.0.1
+Revision 1.2
 
 Introduction
 ------------
@@ -14,10 +14,11 @@ Installation Instructions
 -------------------------
 
 Download the files from Github and extract them into the corresponding folders of your Zen Cart installation:
-* https://github.com/SagePay/PayNow-SimpleCart/archive/master.zip
+* Version < v1.5.4 https://github.com/SagePay/PayNow-SimpleCart/archive/master.zip
+* Version > v1.5.4 https://github.com/SagePay/PayNow-SimpleCart/archive/v1.2.0.zip
 
 There are three folders that require have files in, namely:
-* admin
+* admin /zcadmin
 * images
 * includes
 
@@ -76,6 +77,11 @@ http://zencart.gatewaymodules.com
 Revision History
 ----------------
 
+* 19 June 2015/1.2
+** Changed /admin/ directory to /zcadmin/
+** Fix new method of gathering order totals
+** Fix order total validation in ITN callback
+** Remove securityToken field on checkout form that's causing issues with the SagePay service.
 * 11 May 2014/1.0.1
 ** Improved documentation with callback module.
 ** Fix reference in code to "Service Key"
