@@ -279,7 +279,21 @@ class sagepaynow extends base
 
         // products
         for ($i = 0; $i < sizeof($products); $i++) {
-            $order_total += number_format(($currencies->get_value($order->info['currency']) * ($products[$i]['final_price'] * $products[$i]['qty'])), 2, '.', '');
+            $qty_total = ($products[$i]['final_price'] * $products[$i]['qty']);
+            $currency_val = $currencies->get_value($order->info['currency']);
+
+            // Convert to ZAR if ZAR is set up
+            if( $currencies->get_value("ZAR") ) {
+                $currency_val = $currencies->get_value("ZAR");
+            }
+
+            if( $currency_val >= 1 ) {
+                $t = $currency_val * $qty_total;
+            } else {
+                $t = $qty_total / $currency_val;
+            }
+
+            $order_total += number_format($t, 2, '.', '');
         }
 
         // shipping
@@ -325,7 +339,7 @@ class sagepaynow extends base
         	// [item_description] => 1 x Strong Widget = 10.00; 1 x Widget = 10.00; Shipping = 5.00; Total= 25.00;
             // 'item_description' => $description,
 
-            'p4' => number_format( $order_total, 2 ),
+            'p4' => $order_total,
             // 'p4' => number_format( $this->transaction_amount, $currencyDecPlaces, '.', '' ),
 
             'p2' => date('Ymd-His'),
