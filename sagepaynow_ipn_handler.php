@@ -150,7 +150,23 @@ if (! $pnError) {
 
 			// products
 			for ($i = 0; $i < sizeof($products); $i++) {
-			    $pn_order_total += number_format(($currencies->get_value($order->info['currency']) * ($products[$i]['final_price'] * $products[$i]['qty'])), 2, '.', '');
+				$qty_total = ($products[$i]['final_price'] * $products[$i]['qty']);
+	            $currency_val = $currencies->get_value($order->info['currency']);
+
+	            // Convert to ZAR if ZAR is set up
+	            if( $currencies->get_value("ZAR") ) {
+	                $currency_val = $currencies->get_value("ZAR");
+	            }
+
+	            if( $currency_val >= 1 ) {
+	                $t = $currency_val * $qty_total;
+	            } else {
+	                $t = $qty_total / $currency_val;
+	            }
+
+	            $pn_order_total += number_format($t, 2, '.', '');
+
+			    // $pn_order_total += number_format(($currencies->get_value($order->info['currency']) * ($products[$i]['final_price'] * $products[$i]['qty'])), 2, '.', '');
 			}
 
 			// Check order amount
