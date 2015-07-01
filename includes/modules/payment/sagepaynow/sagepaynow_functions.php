@@ -272,5 +272,27 @@ function pn_removeExpiredSessions()
         $db->Execute( $sql );
     }
 }
+
+function toZAR($amount) {
+    global $currencies;
+
+    $currency_val = 1; //$currencies->get_value($order->info['currency']);
+
+    // Convert to ZAR if ZAR is set up
+    if( $currencies->get_value("ZAR") ) {
+        $currency_val = $currencies->get_value("ZAR");
+    } else {
+        throw new Exception("ZAR currency not set");
+    }
+
+    if( $currency_val >= 1 ) {
+        $zar = $currency_val * $amount;
+    } else {
+        $zar = $amount / $currency_val;
+    }
+
+    return $zar;
+
+}
 // }}}
 ?>

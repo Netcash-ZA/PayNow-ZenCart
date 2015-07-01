@@ -280,35 +280,27 @@ class sagepaynow extends base
         // products
         for ($i = 0; $i < sizeof($products); $i++) {
             $qty_total = ($products[$i]['final_price'] * $products[$i]['qty']);
-            $currency_val = $currencies->get_value($order->info['currency']);
-
-            // Convert to ZAR if ZAR is set up
-            if( $currencies->get_value("ZAR") ) {
-                $currency_val = $currencies->get_value("ZAR");
-            }
-
-            if( $currency_val >= 1 ) {
-                $t = $currency_val * $qty_total;
-            } else {
-                $t = $qty_total / $currency_val;
-            }
-
+            $t = toZAR($qty_total);
             $order_total += number_format($t, 2, '.', '');
         }
 
         // shipping
-        // if ($order->info['shipping_method']) {
-        //     $order_total += number_format(($currencies->get_value($order->info['currency']) * $order->info['shipping_cost']), 2, '.', '');
-        // }
-        // //tax
-        // if ($order->info['tax'] > 0) {
-        //     $order_total += number_format(($currencies->get_value($order->info['currency']) * $order->info['tax']), 2, '.', '');
-        // }
+         if ($order->info['shipping_method']) {
+             $t = toZAR($order->info['shipping_cost']);
+             $order_total += number_format($t, 2, '.', '');
+         }
+
+         //tax
+         if ($order->info['tax'] > 0) {
+             $t = toZAR($order->info['tax']);
+             $order_total += number_format($t, 2, '.', '');
+         }
         // //coupons
-        // $coupon_result = $this->check_coupons();
-        // if ($coupon_result > 0) {
-        //     $order_total -= number_format(($currencies->get_value($order->info['currency']) * $coupon_result), 2, '.', '');
-        // }
+//         $coupon_result = $this->check_coupons();
+//         if ($coupon_result > 0) {
+//             $t = toZAR($coupon_result);
+//             $order_total -= number_format($t, 2, '.', '');
+//         }
 
         // patch for multi-currency - AGB 19/07/13 - see also the ITN handler
         // $_SESSION['sagepaynow_amount'] = number_format( $this->transaction_amount, $currencyDecPlaces, '.', '' );

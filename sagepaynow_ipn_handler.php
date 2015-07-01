@@ -149,25 +149,30 @@ if (! $pnError) {
 			$products = $order->products;
 
 			// products
-			for ($i = 0; $i < sizeof($products); $i++) {
-				$qty_total = ($products[$i]['final_price'] * $products[$i]['qty']);
-	            $currency_val = $currencies->get_value($order->info['currency']);
+            // products
+            for ($i = 0; $i < sizeof($products); $i++) {
+                $qty_total = ($products[$i]['final_price'] * $products[$i]['qty']);
+                $t = toZAR($qty_total);
+                $pn_order_total += number_format($t, 2, '.', '');
+            }
 
-	            // Convert to ZAR if ZAR is set up
-	            if( $currencies->get_value("ZAR") ) {
-	                $currency_val = $currencies->get_value("ZAR");
-	            }
+            // shipping
+            if ($order->info['shipping_method']) {
+                $t = toZAR($order->info['shipping_cost']);
+                $pn_order_total += number_format($t, 2, '.', '');
+            }
 
-	            if( $currency_val >= 1 ) {
-	                $t = $currency_val * $qty_total;
-	            } else {
-	                $t = $qty_total / $currency_val;
-	            }
-
-	            $pn_order_total += number_format($t, 2, '.', '');
-
-			    // $pn_order_total += number_format(($currencies->get_value($order->info['currency']) * ($products[$i]['final_price'] * $products[$i]['qty'])), 2, '.', '');
-			}
+            //tax
+            if ($order->info['tax'] > 0) {
+                $t = toZAR($order->info['tax']);
+                $pn_order_total += number_format($t, 2, '.', '');
+            }
+            // //coupons
+//            $coupon_result = $this->check_coupons();
+//            if ($coupon_result > 0) {
+//                $t = toZAR($coupon_result);
+//                $pn_order_total -= number_format($t, 2, '.', '');
+//            }
 
 			// Check order amount
 			pnlog ( 'Checking if amounts are the same' );
