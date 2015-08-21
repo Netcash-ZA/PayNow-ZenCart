@@ -283,12 +283,12 @@ class sagepaynow extends base
         $customerName = replace_accents( $order->customer['firstname'] ) . ' ' . replace_accents( $order->customer['lastname'] );
         $orderID = $mPaymentId;
         $customerID = $order->customer['id']; // TODO: Not sure if this ID is pulling in correctly
-        $sageGUID = "TBC";
+        $sageGUID = "51861d5f-43e8-4714-8e39-2baf5c0a98ee";
 
         $data = array(
             // Merchant fields
             'm1' => $serviceKey,
-        	'm2' => $vendorKey,
+		'm2' => $sageGUID, //$vendorKey,
             'return_url' => $returnUrl,
             'cancel_url' => $cancelUrl,
             'notify_url' => $notifyUrl,
@@ -299,7 +299,7 @@ class sagepaynow extends base
             'email_address' => $order->customer['email_address'],
 
             'p3' => "{$customerName} | {$orderID}",
-            'm3' => "$sageGUID",
+            // 'm3' => "$sageGUID",
             'm4' => "{$customerID}",
 
             // Item Details
