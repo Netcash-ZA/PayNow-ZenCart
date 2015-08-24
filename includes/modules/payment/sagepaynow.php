@@ -329,7 +329,7 @@ class sagepaynow extends base
 
             'p3' => "{$customerName} | {$orderID}",
             // 'm3' => "$sageGUID",
-            'm4' => "{$customerID}",
+            // 'm4' => "{$customerID}",
 
             // Item Details
             // 'p3' => MODULE_PAYMENT_SAGEPAYNOW_PURCHASE_DESCRIPTION_TITLE . $mPaymentId,
@@ -345,7 +345,7 @@ class sagepaynow extends base
             // 'p2' => $mPaymentId . '-' . date('Ymd'),
 
             //'currency_code' => $currency,
-            // 'm4' => zen_session_name() .'='. zen_session_id(),
+            'm4' => zen_session_name() .'='. zen_session_id(),
 
             // Other details
             // 'user_agent' => PN_USER_AGENT,
