@@ -2,7 +2,7 @@
 /**
  * sagepaynow_ipn_handler
  *
- * Callback handler for Sage Pay Now IPN 
+ * Callback handler for Sage Pay Now IPN
  *
  */
 
@@ -49,12 +49,12 @@ if (! $pnError) {
 // Get data sent by Sage Pay Now
 if (! $pnError) {
 	pnlog ( 'Get posted data' );
-	
+
 	// Posted variables from IPN
 	$pnData = pnGetData ();
-	
+
 	pnlog ( 'Sage Pay Now Data: ' . print_r ( $pnData, true ) );
-	
+
 	if ($pnData === false) {
 		$pnError = true;
 		$pnErrMsg = PN_ERR_BAD_ACCESS;
@@ -68,12 +68,12 @@ if (! $pnError) {
 	$pnOrderId = null;
 	$zcOrderId = null;
 	$txnType = null;
-	
+
 	// Determine the transaction type
 	list ( $pnOrderId, $zcOrderId, $txnType ) = pn_lookupTransaction ( $pnData );
-	
+
 	pnlog ( "Transaction details:" . "\n- pnOrderId = " . (empty ( $pnOrderId ) ? 'null' : $pnOrderId) . "\n- zcOrderId = " . (empty ( $zcOrderId ) ? 'null' : $zcOrderId) . "\n- txnType   = " . (empty ( $txnType ) ? 'null' : $txnType) );
-	
+
 	switch ($txnType) {
 		/**
 		 * New Transaction
@@ -83,20 +83,20 @@ if (! $pnError) {
 		 * COMPLETE state, but rather than it is new to the system
 		 */
 		case 'new' :
-			
+
 			// // bof: Get Saved Session
 			pnlog ( 'Retrieving saved session' );
-			
+
 			// Get the Zen session name and ID from Sage Pay Now data
 			list ( $zcSessName, $zcSessID ) = explode ( '=', $pnData ['Extra1'] );
-			
+
 			pnlog ( 'Session Name = ' . $zcSessName . ', Session ID = ' . $zcSessID );
-			
+
 			$sql = "SELECT *
                 FROM `" . TABLE_SAGEPAYNOW_SESSION . "`
                 WHERE `session_id` = '" . $zcSessID . "'";
 			$storedSession = $db->Execute ( $sql );
-			
+
 			if ($storedSession->recordCount () < 1) {
 				$pnError = true;
 				$pnErrMsg = PN_ERR_NO_SESSION;
@@ -105,7 +105,7 @@ if (! $pnError) {
 				$_SESSION = unserialize ( base64_decode ( $storedSession->fields ['saved_session'] ) );
 			}
 			// eof: Get Saved Session
-				
+
 			// bof: Get ZenCart order details
 			pnlog ( 'Recreating Zen Cart order environment' );
 			if (defined ( DIR_WS_CLASSES )) {
@@ -120,7 +120,7 @@ if (! $pnError) {
 			} else {
 				pnlog ( ' ***ALERT*** $_SESSION IS NOT DEFINED' );
 			}
-			
+
 			// Load ZenCart shipping class
 			require_once (DIR_WS_CLASSES . 'shipping.php');
 			pnlog ( __FILE__ . ' line ' . __LINE__ );
@@ -143,20 +143,50 @@ if (! $pnError) {
 			pnlog ( __FILE__ . ' line ' . __LINE__ );
 			// bof: Check data against ZenCart order
 			pnlog ( 'Checking data against Zen Cart order' );
-			
+
+			global $currencies;
+			$pn_order_total = 0;
+			$products = $order->products;
+
+			// products
+            // products
+            for ($i = 0; $i < sizeof($products); $i++) {
+                $qty_total = ($products[$i]['final_price'] * $products[$i]['qty']);
+                $t = toZAR($qty_total);
+                $pn_order_total += number_format($t, 2, '.', '');
+            }
+
+            // shipping
+            if ($order->info['shipping_method']) {
+                $t = toZAR($order->info['shipping_cost']);
+                $pn_order_total += number_format($t, 2, '.', '');
+            }
+
+            //tax
+            if ($order->info['tax'] > 0) {
+                $t = toZAR($order->info['tax']);
+                $pn_order_total += number_format($t, 2, '.', '');
+            }
+            // //coupons
+//            $coupon_result = $this->check_coupons();
+//            if ($coupon_result > 0) {
+//                $t = toZAR($coupon_result);
+//                $pn_order_total -= number_format($t, 2, '.', '');
+//            }
+
 			// Check order amount
 			pnlog ( 'Checking if amounts are the same' );
 			// patch for multi-currency - AGB 19/07/13 - see also includes/modules/payment/sagepaynow.php
 			// if( !pnAmountsEqual( $pnData['amount_gross'], $order->info['total'] ) )
-			if (! pnAmountsEqual ( $pnData ['Amount'], $_SESSION ['sagepaynow_amount'] )) {
-				pnlog ( 'Amount mismatch: PN amount = ' . $pnData ['amount_gross'] . ', ZC amount = ' . $_SESSION ['sagepaynow_amount'] );
-				
+			if (! pnAmountsEqual ( $pnData ['Amount'], $pn_order_total )) {
+				pnlog ( 'Amount mismatch: PN amount = ' . $pnData ['Amount'] . ', ZC amount = ' . $pn_order_total );
+
 				$pnError = true;
 				$pnErrMsg = PN_ERR_AMOUNT_MISMATCH;
 				break;
 			}
 			// eof: Check data against ZenCart order
-			
+
 			// Check if Transaction was Accepted
 			if ($pnData['TransactionAccepted'] == 'false') {
 				pnlog("Transaction failed, exiting break statement");
@@ -164,66 +194,66 @@ if (! $pnError) {
 				$pnErrMsg = "Transaction Failed Reason: " . $pnData['Reason'];
 				break;
 			}
-			// End Check if Transaction was Accepted			
-			
+			// End Check if Transaction was Accepted
+
 			// Create ZenCart order
 			pnlog ( 'Creating Zen Cart order' );
 			$zcOrderId = $order->create ( $order_totals );
-			
+
 			// Create Sage Pay Now order
 			pnlog ( 'Creating Sage Pay Now order' );
 			$sqlArray = pn_createOrderArray ( $pnData, $zcOrderId, $ts );
 			zen_db_perform ( TABLE_SAGEPAYNOW, $sqlArray );
-			
+
 			// Create Sage Pay Now history record
 			pnlog ( 'Creating Sage Pay Now payment status history record' );
 			$pnOrderId = $db->Insert_ID ();
-			
+
 			$sqlArray = pn_createOrderHistoryArray ( $pnData, $pnOrderId, $ts );
 			zen_db_perform ( TABLE_SAGEPAYNOW_PAYMENT_STATUS_HISTORY, $sqlArray );
-			
+
 			// Update order status (if required)
 			$newStatus = MODULE_PAYMENT_SAGEPAYNOW_ORDER_STATUS_ID;
-			
+
 			if ($pnData ['payment_status'] == 'PENDING') {
 				pnlog ( 'Setting Zen Cart order status to PENDING' );
 				$newStatus = MODULE_PAYMENT_SAGEPAYNOW_PROCESSING_STATUS_ID;
-				
+
 				$sql = "UPDATE " . TABLE_ORDERS . "
                     SET `orders_status` = " . MODULE_PAYMENT_SAGEPAYNOW_PROCESSING_STATUS_ID . "
                     WHERE `orders_id` = '" . $zcOrderId . "'";
 				$db->Execute ( $sql );
 			}
-			
+
 			// Update order status history
 			pnlog ( 'Inserting Zen Cart order status history record' );
-			
+
 			$sqlArray = array (
 					'orders_id' => $zcOrderId,
 					'orders_status_id' => $newStatus,
 					'date_added' => date ( PN_FORMAT_DATETIME_DB, $ts ),
 					'customer_notified' => '0',
-					'comments' => 'Sage Pay Now status: ' . $pnData ['payment_status'] 
+					'comments' => 'Sage Pay Now status: ' . $pnData ['payment_status']
 			);
 			zen_db_perform ( TABLE_ORDERS_STATUS_HISTORY, $sqlArray );
-			
+
 			// Add products to order
 			pnlog ( 'Adding products to order' );
 			$order->create_add_products ( $zcOrderId, 2 );
-			
+
 			// Email customer
 			pnlog ( 'Emailing customer' );
 			$order->send_order_email ( $zcOrderId, 2 );
-			
+
 			// Empty cart
 			pnlog ( 'Emptying cart' );
 			$_SESSION ['cart']->reset ( true );
-			
+
 			// Deleting stored session information
 			$sql = "DELETE FROM `" . TABLE_SAGEPAYNOW_SESSION . "`
                 WHERE `session_id` = '" . $zcSessID . "'";
 			$db->Execute ( $sql );
-			
+
 			// Sending email to admin
 			if (PN_DEBUG) {
 				$subject = "Sage Pay Now IPN on your site";
@@ -240,7 +270,7 @@ if (! $pnError) {
 			// TODO Redirect
 			zen_redirect($redirectUrl);
 			break;
-		
+
 		/**
 		 * Pending transaction must be cleared
 		 *
@@ -248,13 +278,13 @@ if (! $pnError) {
 		 * is in a PENDING state which has now been updated to COMPLETE.
 		 */
 		case 'cleared' :
-			
+
 			$sqlArray = pn_createOrderHistoryArray ( $pnData, $pnOrderId, $ts );
 			zen_db_perform ( TABLE_SAGEPAYNOW_PAYMENT_STATUS_HISTORY, $sqlArray );
-			
+
 			$newStatus = MODULE_PAYMENT_SAGEPAYNOW_ORDER_STATUS_ID;
 			break;
-		
+
 		/**
 		 * Pending transaction must be updated
 		 *
@@ -264,12 +294,12 @@ if (! $pnError) {
 		 * NOTE: Currently, this should never happen
 		 */
 		case 'update' :
-			
+
 			$sqlArray = pn_createOrderHistoryArray ( $pnData, $pnOrderId, $ts );
 			zen_db_perform ( TABLE_SAGEPAYNOW_PAYMENT_STATUS_HISTORY, $sqlArray );
-			
+
 			break;
-		
+
 		/**
 		 * Pending transaction has failed
 		 *
@@ -280,9 +310,9 @@ if (! $pnError) {
 			$comments = 'Payment failed (Sage Pay Now id = ' . $pnData ['RequestTrace'] . ')';
 			$sqlArray = pn_createOrderHistoryArray ( $pnData, $pnOrderId, $ts );
 			zen_db_perform ( TABLE_SAGEPAYNOW_PAYMENT_STATUS_HISTORY, $sqlArray );
-			
+
 			$newStatus = MODULE_PAYMENT_SAGEPAYNOW_PREPARE_ORDER_STATUS_ID;
-			
+
 			// Sending email to admin
 			$subject = "Sage Pay Now IPN Transaction on your site";
 			$body = "Hi,\n\n" . "A failed Sage Pay Now transaction on your website requires attention\n" . "--------------------------------------------------------------------\n" . "Site: " . STORE_NAME . " (" . HTTP_SERVER . DIR_WS_CATALOG . ")\n" . "Order ID: " . $zcOrderId . "\n".
@@ -290,9 +320,9 @@ if (! $pnError) {
                 // TODO Fix pn_payment_id
                 "Sage Pay Now Transaction ID: " . $pnData ['RequestTrace'] . "\n" . "Sage Pay Now Payment Status: " . $pnData ['TransactionAccepted'] . "\n" . "Order Status Code: " . $newStatus;
 			zen_mail ( STORE_OWNER, $pnDebugEmail, $subject, $body, STORE_OWNER, STORE_OWNER_EMAIL_ADDRESS, null, 'debug' );
-			
+
 			break;
-		
+
 		/**
 		 * Unknown t
 		 *
@@ -302,11 +332,11 @@ if (! $pnError) {
 			pnlog ( "Can not process for txn type '" . $txn_type . ":\n" . print_r ( $pnData, true ) );
 			break;
 	}
-	
+
 	echo "Payment has failed. Reason: " . $pnData['Reason'] . "<br><br>";
 	$redirectUrlFailed = zen_href_link( FILENAME_CHECKOUT_PAYMENT, '', 'SSL' );
 	echo "<a href='$redirectUrlFailed'>Click here</a> to return to Zen Cart checkout";
-	
+
 }
 
 // Update Zen Cart order and history status tables
@@ -319,7 +349,7 @@ if (! $pnError) {
 if ($pnError) {
 	pnlog ( 'Error occurred: ' . $pnErrMsg );
 	pnlog ( 'Sending email notification' );
-	
+
 	$subject = "Sage Pay Now IPN error: " . $pnErrMsg;
 	$body = "Hi,\n\n" . "An invalid Sage Pay Now transaction on your website requires attention\n" . "----------------------------------------------------------------------\n" . "Site: " . STORE_NAME . " (" . HTTP_SERVER . DIR_WS_CATALOG . ")\n" . "Remote IP Address: " . $_SERVER ['REMOTE_ADDR'] . "\n" . "Remote host name: " . gethostbyaddr ( $_SERVER ['REMOTE_ADDR'] ) . "\n" . "Order ID: " . $zcOrderId . "\n";
 	// "User ID: ". $db->f("user_id") ."\n";
@@ -329,17 +359,17 @@ if ($pnError) {
 	if (isset ( $pnData ['payment_status'] ))
 		$body .= "Sage Pay Now Payment Status: " . $pnData ['payment_status'] . "\n";
 	$body .= "\nError: " . $pnErrMsg . "\n";
-	
+
 	switch ($pnErrMsg) {
 		case PN_ERR_AMOUNT_MISMATCH :
-			$body .= "Value received : " . $pnData ['amount_gross'] . "\n" . "Value should be: " . $order->info ['total'];
+			$body .= "Value received : " . $pnData ['Amount'] . "\n" . "Value should be: " . $order->info ['total'];
 			break;
-		
+
 		// For all other errors there is no need to add additional information
 		default :
 			break;
 	}
-	
+
 	zen_mail ( STORE_OWNER, $pnDebugEmail, $subject, $body, STORE_OWNER, STORE_OWNER_EMAIL_ADDRESS, null, 'debug' );
 }
 
