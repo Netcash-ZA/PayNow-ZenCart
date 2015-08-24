@@ -288,7 +288,7 @@ class sagepaynow extends base
         $data = array(
             // Merchant fields
             'm1' => $serviceKey,
-		'm2' => $sageGUID, //$vendorKey,
+        	'm2' => $sageGUID, //$vendorKey,
             'return_url' => $returnUrl,
             'cancel_url' => $cancelUrl,
             'notify_url' => $notifyUrl,
@@ -312,7 +312,7 @@ class sagepaynow extends base
             // 'm4' => zen_session_name() .'='. zen_session_id(),
 
             // Other details
-            'user_agent' => PN_USER_AGENT,
+            // 'user_agent' => PN_USER_AGENT,
             );
 
         pnlog( "Data to send (location process_button):\n". print_r( $data, true ) );
