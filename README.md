@@ -1,7 +1,7 @@
 Sage Pay Now Zen Cart Credit Card Payment Module
 ================================================
 
-Revision 1.2
+Revision 2.0.0
 
 Introduction
 ------------
@@ -46,7 +46,7 @@ A. Sage Pay Now Gateway Server Configuration Steps:
 6. Type in your Email address
 7. Click "Allow credit card payments:"
 
-8. The Accept and Decline URLs should both be:
+8. The Accept, Decline, Notify and Redirect URLs should all be:
 	> http://zen_cart_installation/sagepaynow_ipn_handler.php
 
 10. It is highly recommended that you "Make test mode active:" while you are still testing your site.
@@ -77,6 +77,8 @@ http://zencart.gatewaymodules.com
 Revision History
 ----------------
 
+* 25 August 2015/2.0.0
+** Add support for EFT/Retail payments
 * 19 June 2015/1.2
 ** Changed /admin/ directory to /zcadmin/
 ** Fix new method of gathering order totals
