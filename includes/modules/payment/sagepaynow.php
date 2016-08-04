@@ -314,6 +314,8 @@ class sagepaynow extends base
         $customerID = $order->customer['id']; // TODO: Not sure if this ID is pulling in correctly
         $sageGUID = "51861d5f-43e8-4714-8e39-2baf5c0a98ee";
 
+        $full_name = replace_accents( $order->customer['firstname'] . " " . $order->customer['lastname'] );
+
         $data = array(
             // Merchant fields
             'm1' => $serviceKey,
@@ -327,13 +329,7 @@ class sagepaynow extends base
             'name_last' => replace_accents( $order->customer['lastname'] ),
             'email_address' => $order->customer['email_address'],
 
-            'p3' => "{$customerName} | {$orderID}",
-            // 'm3' => "$sageGUID",
-            // 'm4' => "{$customerID}",
-
-            // Item Details
-            // 'p3' => MODULE_PAYMENT_SAGEPAYNOW_PURCHASE_DESCRIPTION_TITLE . $mPaymentId,
-            'p3' => $mPaymentId,
+            'p3' => "Order ID {$orderID}",
 
         	// [item_description] => 1 x Strong Widget = 10.00; 1 x Widget = 10.00; Shipping = 5.00; Total= 25.00;
             // 'item_description' => $description,
@@ -346,9 +342,9 @@ class sagepaynow extends base
 
             //'currency_code' => $currency,
             'm4' => zen_session_name() .'='. zen_session_id(),
-
-            // Other details
-            // 'user_agent' => PN_USER_AGENT,
+            'm5' => $full_name,
+            'm6' => $order->customer['email_address'],
+            'm9' => $order->customer['email_address'],
             );
 
         pnlog( "Data to send (location process_button):\n". print_r( $data, true ) );
