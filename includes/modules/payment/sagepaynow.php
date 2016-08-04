@@ -334,8 +334,8 @@ class sagepaynow extends base
         	// [item_description] => 1 x Strong Widget = 10.00; 1 x Widget = 10.00; Shipping = 5.00; Total= 25.00;
             // 'item_description' => $description,
 
-            'p4' => $order_total,
-            // 'p4' => number_format( $this->transaction_amount, $currencyDecPlaces, '.', '' ),
+            // 'p4' => $order_total,
+            'p4' => number_format( $this->transaction_amount, $currencyDecPlaces, '.', '' ),
 
             'p2' => date('Ymd-His'),
             // 'p2' => $mPaymentId . '-' . date('Ymd'),
