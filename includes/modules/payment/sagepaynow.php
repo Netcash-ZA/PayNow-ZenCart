@@ -57,7 +57,7 @@ class sagepaynow extends base
         // Variable initialization
         global $order, $messageStack;
         $this->code = 'sagepaynow';
-        $this->codeVersion = '1.0.0';
+        $this->codeVersion = '1.1.0';
 
         // Set payment module title in Admin
         if( IS_ADMIN_FLAG === true )
@@ -678,7 +678,22 @@ class sagepaynow extends base
         // Remove all configuration variables
         $db->Execute(
             "DELETE FROM ". TABLE_CONFIGURATION ."
-            WHERE `configuration_key` LIKE 'MODULE\_PAYMENT\_SAGEPAYNOW\_%'");
+            WHERE `configuration_key` LIKE 'MODULE_PAYMENT_SAGEPAYNOW_%'");
+
+        $tables = array();
+        $result = $db->Execute( "SHOW TABLES LIKE 'sagepaynowt%'" );
+        $fieldName = 'Tables_in_'. DB_DATABASE .' (sagepaynow%)';
+
+        while( !$result->EOF )
+        {
+            $tables[] = $result->fields[$fieldName];
+            $result->MoveNext();
+        }
+
+        foreach($tables as $table) {
+        $db->Execute(
+            "DROP TABLE  ". $table);
+        }
 
         $this->notify( 'NOTIFY_PAYMENT_SAGEPAYNOW_UNINSTALLED' );
     }
