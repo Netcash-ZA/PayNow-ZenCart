@@ -65,28 +65,9 @@ You are now ready to process credit card transaction with Sage Pay Now.
 
 Remember to turn of "Make test mode active:" in the Sage Pay backend when you are ready to go live.
 
-Revision History
-----------------
-
-* 25 August 2015/2.0.0
-** Add support for EFT/Retail payments
-* 19 June 2015/1.2
-** Changed /admin/ directory to /zcadmin/
-** Fix new method of gathering order totals
-** Fix order total validation in ITN callback
-** Remove securityToken field on checkout form that's causing issues with the SagePay service.
-* 11 May 2014/1.0.1
-** Improved documentation with callback module.
-** Fix reference in code to "Service Key"
-** Added small logo
-* 13 Apr 2014/1.0.0	First version
-
-Tested with Zen Cart version 3
-
-Feedback, issues & feature requests
------------------------------------
+Issues & Feature Requests
+-------------------------
 
 We welcome your feedback.
 
-If you have any comments or questions please contact Sage Pay South Africa or log an issue on GitHub
-
+Please contact Sage Pay South Africa with any questions or issues.

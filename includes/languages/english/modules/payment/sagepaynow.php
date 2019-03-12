@@ -26,7 +26,7 @@ if( IS_ADMIN_FLAG === true )
 else
     define( 'MODULE_PAYMENT_SAGEPAYNOW_TEXT_DESCRIPTION', '<strong>Sage Pay Now</strong>');
 
-define( 'MODULE_PAYMENT_SAGEPAYNOW_BUTTON_IMG', DIR_WS_IMAGES .'sagepaynow/logo_small.jpg' );
+define( 'MODULE_PAYMENT_SAGEPAYNOW_BUTTON_IMG', DIR_WS_IMAGES .'sagepaynow/logo_small.png' );
 define( 'MODULE_PAYMENT_SAGEPAYNOW_BUTTON_ALT', 'Checkout with Sage Pay Now' );
 define( 'MODULE_PAYMENT_SAGEPAYNOW_ACCEPTANCE_MARK_TEXT', '' );
 
