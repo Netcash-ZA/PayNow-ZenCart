@@ -509,10 +509,14 @@ class sagepaynow extends base
         $db->Execute(
             "INSERT INTO ". TABLE_CONFIGURATION ."( configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added )
             VALUES( 'Enable Sage Pay Now?', 'MODULE_PAYMENT_SAGEPAYNOW_STATUS', 'False', 'Do you want to enable Sage Pay Now?', '6', '0', 'zen_cfg_select_option(array(\'True\', \'False\'), ', now() )" );
-        // MODULE_PAYMENT_SAGEPAYNOW_MERCHANT_KEY (Default = Generic sandbox credentials)
+        // MODULE_PAYMENT_SAGEPAYNOW_MERCHANT_KEY (Default = None)
         $db->Execute(
             "INSERT INTO ". TABLE_CONFIGURATION ."( configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added )
-            VALUES( 'Sage Pay Now Service Key', 'MODULE_PAYMENT_SAGEPAYNOW_MERCHANT_KEY', '', 'Your Software Key from Sage Pay Now<br><span style=\"font-size: 0.9em; color: green;\">(Click <a href=\"http://www.sagepay.co.za/acc/integration\" target=\"_blank\">here</a> to get yours. This is initially set to a test value for testing purposes.)</span>', '6', '0', now() )" );
+            VALUES( 'Sage Pay Now Service Key', 'MODULE_PAYMENT_SAGEPAYNOW_MERCHANT_KEY', '', 'Your Service Key from Sage Pay Now<br><span style=\"font-size: 0.9em; color: green;\">(Click <a href=\"http://www.sagepay.co.za/acc/integration\" target=\"_blank\">here</a> to get yours.)</span>', '6', '0', now() )" );
+        // // MODULE_PAYMENT_SAGEPAYNOW_ACCOUNT_NUMBER (Default = None)
+        // $db->Execute(
+        //     "INSERT INTO ". TABLE_CONFIGURATION ."( configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added )
+        //     VALUES( 'Sage Pay Now Account Number', 'MODULE_PAYMENT_SAGEPAYNOW_ACCOUNT_NUMBER', '', 'Your Sage Pay Account Number', '6', '0', now() )" );
         // MODULE_PAYMENT_SAGEPAYNOW_SORT_ORDER (Default = 0)
         $db->Execute(
             "INSERT INTO " . TABLE_CONFIGURATION . "( configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added )
@@ -693,6 +697,7 @@ class sagepaynow extends base
         $keys = array(
             'MODULE_PAYMENT_SAGEPAYNOW_STATUS',
 
+            'MODULE_PAYMENT_SAGEPAYNOW_ACCOUNT_NUMBER',
             'MODULE_PAYMENT_SAGEPAYNOW_MERCHANT_KEY',
 
             'MODULE_PAYMENT_SAGEPAYNOW_SORT_ORDER',
