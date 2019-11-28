@@ -1,23 +1,23 @@
 <?php
 /**
- * sagepaynow.php
+ * paynow.php
  *
  * Admin module for querying payments (and associated orders) made using the
- * Sage Pay Now payment module.
+ * Netcash Pay Now payment module.
  *
  */
 
 // Max results to show per page
-define( 'MAX_DISPLAY_SEARCH_RESULTS_SAGEPAYNOW', 10 );
-define( 'FILENAME_SAGEPAYNOW', 'sagepaynow.php' );
+define( 'MAX_DISPLAY_SEARCH_RESULTS_NETCASH_PAYNOW', 10 );
+define( 'FILENAME_NETCASH_PAYNOW', 'paynow.php' );
 
 // Include ZenCart header
 require('includes/application_top.php');
 
 // Create sort order array
 $paynowSortOrderArray = array(
-    array( 'id' => '0', 'text' => TEXT_SORT_SAGEPAYNOW_ID_DESC ),
-    array( 'id' => '1', 'text' => TEXT_SORT_SAGEPAYNOW_ID ),
+    array( 'id' => '0', 'text' => TEXT_SORT_NETCASH_PAYNOW_ID_DESC ),
+    array( 'id' => '1', 'text' => TEXT_SORT_NETCASH_PAYNOW_ID ),
     array( 'id' => '2', 'text' => TEXT_SORT_ZEN_ORDER_ID_DESC ),
     array( 'id' => '3', 'text'=> TEXT_SORT_ZEN_ORDER_ID ),
     array( 'id' => '4', 'text'=> TEXT_PAYMENT_AMOUNT_DESC ),
@@ -43,12 +43,12 @@ switch( $selectedSortOrder )
 $action = isset( $_GET['action'] ) ? $_GET['action'] : '';
 $selectedStatus = isset( $_GET['pn_status'] ) ? $_GET['pn_status'] : '';
 
-require( DIR_FS_CATALOG_MODULES .'payment/sagepaynow.php' );
+require( DIR_FS_CATALOG_MODULES .'payment/paynow.php' );
 
 // Create payment statuses array
 $sql =
     "SELECT `name`
-    FROM ". TABLE_SAGEPAYNOW_PAYMENT_STATUS ;
+    FROM ". TABLE_NETCASH_PAYNOW_PAYMENT_STATUS ;
 $result = $db->Execute( $sql );
 
 $paymentStatuses = array();
@@ -107,7 +107,7 @@ while( !$result->EOF )
                     <td class="smallText" align="right">
 <?php
 echo
-    zen_draw_form( 'pn_status', FILENAME_SAGEPAYNOW, '', 'get' ) .
+    zen_draw_form( 'pn_status', FILENAME_NETCASH_PAYNOW, '', 'get' ) .
     HEADING_PAYMENT_STATUS . ' ' .
     zen_draw_pull_down_menu( 'pn_status',
         array_merge( array( array( 'id' => '', 'text' => TEXT_ALL ) ), $paymentStatuses ),
@@ -117,9 +117,9 @@ echo
     '</form>';
 
 echo
-    '&nbsp;&nbsp;&nbsp;' . TEXT_SAGEPAYNOW_SORT_ORDER_INFO .
-    zen_draw_form( 'pn_sort_order', FILENAME_SAGEPAYNOW, '', 'get' ) . '&nbsp;&nbsp;' .
-    zen_draw_pull_down_menu( 'pn_sort_order', $sagepaynowSortOrderArray,
+    '&nbsp;&nbsp;&nbsp;' . TEXT_NETCASH_PAYNOW_SORT_ORDER_INFO .
+    zen_draw_form( 'pn_sort_order', FILENAME_NETCASH_PAYNOW, '', 'get' ) . '&nbsp;&nbsp;' .
+    zen_draw_pull_down_menu( 'pn_sort_order', $paynowSortOrderArray,
         $resetSagepaynowSortOrder, 'onChange="this.form.submit();"') .
     zen_hide_session_id() .
     zen_draw_hidden_field( 'pn_status', $_GET['pn_status'] ) .
@@ -169,7 +169,7 @@ if( zen_not_null( $selectedStatus ) )
         default:
             $sql =
                 "SELECT p.*
-                FROM ". TABLE_SAGEPAYNOW ." AS p, ". TABLE_ORDERS ." AS o
+                FROM ". TABLE_NETCASH_PAYNOW ." AS p, ". TABLE_ORDERS ." AS o
                 WHERE o.`orders_id` = p.`zc_order_id`".
                 $sqlSearch .
                 $sqlOrderBy;
@@ -180,13 +180,13 @@ else
 {
     $sql =
         "SELECT p.*
-        FROM `". TABLE_SAGEPAYNOW ."` AS p
+        FROM `". TABLE_NETCASH_PAYNOW ."` AS p
           LEFT JOIN `". TABLE_ORDERS ."` AS o ON o.`orders_id` = p.`zc_order_id`" .
         $sqlOrderBy;
 }
 
 $split = new splitPageResults( $_GET['page'],
-    MAX_DISPLAY_SEARCH_RESULTS_SAGEPAYNOW, $sql, $qryNumRows );
+    MAX_DISPLAY_SEARCH_RESULTS_NETCASH_PAYNOW, $sql, $qryNumRows );
 $trans = $db->Execute( $sql );
 
 while( !$trans->EOF )
@@ -222,7 +222,7 @@ while( !$trans->EOF )
             '              '.
             '<tr class="dataTableRow" onmouseover="rowOverEffect(this)"'.
             ' onmouseout="rowOutEffect(this)" onclick="document.location.href=\'' .
-            zen_href_link( FILENAME_SAGEPAYNOW, 'page='. $_GET['page'] .
+            zen_href_link( FILENAME_NETCASH_PAYNOW, 'page='. $_GET['page'] .
                 '&pn_order_id=' . $trans->fields['id'] .
                 ( zen_not_null( $selectedStatus ) ? '&pn_status='. $selectedStatus : '') .
                 ( zen_not_null( $selectedSortOrder ) ? '&pn_sort_order='. $selectedSortOrder : '' ) ) .
@@ -233,7 +233,7 @@ while( !$trans->EOF )
         // ZenCart order id
         '<td class="dataTableContent">'. $trans->fields['zc_order_id'] .'</td>'.
 
-        // Sage Pay Now m_payment_id TODO Change
+        // Netcash Pay Now m_payment_id TODO Change
         '<td class="dataTableContent">'. $trans->fields['m_payment_id'] .'</td>'.
 
         '<td class="dataTableContent">'.
@@ -258,7 +258,7 @@ while( !$trans->EOF )
     else
         $out .=
             '<a href="'.
-            zen_href_link( FILENAME_SAGEPAYNOW, 'page=' . $_GET['page'] .
+            zen_href_link( FILENAME_NETCASH_PAYNOW, 'page=' . $_GET['page'] .
                 '&ipnID=' . $trans->fields['paypal_ipn_id']) .
                 ( zen_not_null( $selectedStatus ) ? '&pn_status=' . $selectedStatus : '') .
                 ( zen_not_null( $selectedSortOrder ) ? '&pn_sort_order='. $selectedSortOrder : '' ) .
@@ -278,11 +278,11 @@ while( !$trans->EOF )
                         <tr>
                             <td class="smallText" valign="top">
                                 <?php echo $split->display_count( $qryNumRows,
-                                    MAX_DISPLAY_SEARCH_RESULTS_SAGEPAYNOW, $_GET['page'],
+                                    MAX_DISPLAY_SEARCH_RESULTS_NETCASH_PAYNOW, $_GET['page'],
                                     TEXT_DISPLAY_NUMBER_OF_TRANSACTIONS ); ?></td>
                             <td class="smallText" align="right">
                                 <?php echo $split->display_links( $qryNumRows,
-                                    MAX_DISPLAY_SEARCH_RESULTS_SAGEPAYNOW, MAX_DISPLAY_PAGE_LINKS, $_GET['page'],
+                                    MAX_DISPLAY_SEARCH_RESULTS_NETCASH_PAYNOW, MAX_DISPLAY_PAGE_LINKS, $_GET['page'],
                                     ( zen_not_null( $selectedStatus ) ? '&pn_status='. $selectedStatus : '' ) .
                                     ( zen_not_null( $selectedSortOrder ) ? '&pn_sort_order='. $selectedSortOrder : '' ) ); ?></td>
                         </tr>
@@ -307,11 +307,11 @@ switch( $action )
         if( is_object( $info ) )
         {
             $heading[] = array( 'text' =>
-                '<strong>'. TEXT_INFO_SAGEPAYNOW_HEADING .' #' . $info->id . '</strong>');
+                '<strong>'. TEXT_INFO_NETCASH_PAYNOW_HEADING .' #' . $info->id . '</strong>');
 
             $sql =
                 "SELECT *
-                FROM `". TABLE_SAGEPAYNOW_PAYMENT_STATUS_HISTORY ."`
+                FROM `". TABLE_NETCASH_PAYNOW_PAYMENT_STATUS_HISTORY ."`
                 WHERE `pn_order_id` = '" . $info->id . "'";
             $statHist = $db->Execute( $sql );
             $noOfRecords = $statHist->RecordCount();

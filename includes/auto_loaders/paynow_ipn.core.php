@@ -133,15 +133,15 @@ $autoLoadConfig[60][] = array(
     'autoType'=>'init_script',
     'loadFile'=> 'init_tlds.php' );
 /**
- * Include Sage Pay Now specific functions
- * require( 'includes/modules/payment/sagepaynow/sagepaynow_functions.php' );
+ * Include Netcash Pay Now specific functions
+ * require( 'includes/modules/payment/paynow/paynow_functions.php' );
  */
 $autoLoadConfig[60][] = array(
     'autoType'=>'include',
-    'loadFile'=> DIR_WS_MODULES .'payment/sagepaynow/sagepaynow_common.inc' );
+    'loadFile'=> DIR_WS_MODULES .'payment/paynow/paynow_common.inc' );
 $autoLoadConfig[60][] = array(
     'autoType'=>'include',
-    'loadFile'=> DIR_WS_MODULES .'payment/sagepaynow/sagepaynow_functions.php' );
+    'loadFile'=> DIR_WS_MODULES .'payment/paynow/paynow_functions.php' );
 
 /**
  * Breakpoint 70.
@@ -153,7 +153,7 @@ $autoLoadConfig[70][] = array(
     'loadFile'=> 'init_sessions.php' );
 $autoLoadConfig[71][] = array(
     'autoType'=>'init_script',
-    'loadFile'=> 'init_sagepaynow_ipn_sessions.php' );
+    'loadFile'=> 'init_paynow_ipn_sessions.php' );
 
 /**
  * Breakpoint 80.
@@ -222,5 +222,5 @@ $autoLoadConfig[120][] = array(
  */
 $autoLoadConfig[170][] = array(
     'autoType'=>'init_script',
-    'loadFile'=> 'init_sagepaynow_ipn_postcfg.php' );
+    'loadFile'=> 'init_paynow_ipn_postcfg.php' );
 ?>

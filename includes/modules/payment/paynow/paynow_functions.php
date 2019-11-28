@@ -1,22 +1,22 @@
 <?php
 /**
- * sagepaynow_functions.php
+ * paynow_functions.php
  *
- * Functions used by payment module class for Sage Pay Now IPN payment method
+ * Functions used by payment module class for Netcash Pay Now IPN payment method
  *
  */
 
 // Posting URLs
 // TODO Remove LIVE/TEST references as they are not used
-define( 'MODULE_PAYMENT_SAGEPAYNOW_SERVER_LIVE', 'www.sagepay.co.za' );
-define( 'MODULE_PAYMENT_SAGEPAYNOW_SERVER_TEST', 'www.sagepay.co.za' );
+define( 'MODULE_PAYMENT_NETCASH_PAYNOW_SERVER_LIVE', 'www.netcash.co.za' );
+define( 'MODULE_PAYMENT_NETCASH_PAYNOW_SERVER_TEST', 'www.netcash.co.za' );
 
 // Database tables
-define( 'TABLE_SAGEPAYNOW', DB_PREFIX . 'sagepaynow' );
-define( 'TABLE_SAGEPAYNOW_SESSION', DB_PREFIX . 'sagepaynow_session' );
-define( 'TABLE_SAGEPAYNOW_PAYMENT_STATUS', DB_PREFIX . 'sagepaynow_payment_status' );
-define( 'TABLE_SAGEPAYNOW_PAYMENT_STATUS_HISTORY', DB_PREFIX . 'sagepaynow_payment_status_history' );
-define( 'TABLE_SAGEPAYNOW_TESTING', DB_PREFIX . 'sagepaynow_testing' );
+define( 'TABLE_NETCASH_PAYNOW', DB_PREFIX . 'paynow' );
+define( 'TABLE_NETCASH_PAYNOW_SESSION', DB_PREFIX . 'paynow_session' );
+define( 'TABLE_NETCASH_PAYNOW_PAYMENT_STATUS', DB_PREFIX . 'paynow_payment_status' );
+define( 'TABLE_NETCASH_PAYNOW_PAYMENT_STATUS_HISTORY', DB_PREFIX . 'paynow_payment_status_history' );
+define( 'TABLE_NETCASH_PAYNOW_TESTING', DB_PREFIX . 'paynow_testing' );
 
 // Formatting
 define( 'PN_FORMAT_DATETIME', 'Y-m-d H:i:s' );
@@ -57,10 +57,10 @@ function pn_createUUID()
  */
 function pn_getActiveTable()
 {
-    if( strcasecmp( MODULE_PAYMENT_SAGEPAYNOW_SERVER, 'Live' ) == 0 )
-        $table = TABLE_SAGEPAYNOW;
+    if( strcasecmp( MODULE_PAYMENT_NETCASH_PAYNOW_SERVER, 'Live' ) == 0 )
+        $table = TABLE_NETCASH_PAYNOW;
     else
-        $table = TABLE_SAGEPAYNOW_TESTING;
+        $table = TABLE_NETCASH_PAYNOW_TESTING;
 
     return( $table );
 }
@@ -68,9 +68,9 @@ function pn_getActiveTable()
 /**
  * pn_createOrderArray
  *
- * Creates the array used to create a Sage Pay Now order
+ * Creates the array used to create a Netcash Pay Now order
  *
- * @param $pnData Array Array of posted Sage Pay Now data
+ * @param $pnData Array Array of posted Netcash Pay Now data
  * @param $zcOrderId Integer Order ID for Zen Cart order
  * @param $timestamp Integer Unix timestamp to use for transaction
  */
@@ -86,7 +86,7 @@ function pn_createOrderArray( $pnData = null, $zcOrderId = null, $timestamp = nu
         'amount_gross' => $pnData['amount_gross'],
         'amount_fee' => $pnData['amount_fee'],
         'amount_net' => $pnData['amount_net'],
-        'sagepaynow_data' => serialize( $pnData ),
+        'paynow_data' => serialize( $pnData ),
         'timestamp' => date( PN_FORMAT_DATETIME_DB, $ts ),
         'status' => $pnData['payment_status'],
         'status_date' => date( PN_FORMAT_DATETIME_DB, $ts ),
@@ -101,7 +101,7 @@ function pn_createOrderArray( $pnData = null, $zcOrderId = null, $timestamp = nu
  *
  * Determines the type of transaction which is occuring
  *
- * @param $pnData Array Array of posted Sage Pay Now data
+ * @param $pnData Array Array of posted Netcash Pay Now data
  */
 function pn_lookupTransaction( $pnData = null )
 {
@@ -158,8 +158,8 @@ function pn_lookupTransaction( $pnData = null )
  *
  * Creats the array required for an order history update
  *
- * @param $pnData Array Array of posted Sage Pay Now data
- * @param $pnOrderId Integer Order ID for Sage Pay Now order
+ * @param $pnData Array Array of posted Netcash Pay Now data
+ * @param $pnOrderId Integer Order ID for Netcash Pay Now order
  * @param $timestamp Integer Unix timestamp to use for transaction
  */
 function pn_createOrderHistoryArray( $pnData = null, $pnOrderId = null, $timestamp = null )
@@ -179,9 +179,9 @@ function pn_createOrderHistoryArray( $pnData = null, $pnOrderId = null, $timesta
  * pn_updateOrderStatusAndHistory
  *
  * Update the Zen Cart order status and history with new information supplied
- * from Sage Pay Now.
+ * from Netcash Pay Now.
  *
- * @param $pnData Array Array of posted Sage Pay Now data
+ * @param $pnData Array Array of posted Netcash Pay Now data
  * @param $zcOrderId Integer Order ID for ZenCart order
  */
 function pn_updateOrderStatusAndHistory( $pnData, $zcOrderId, $newStatus = 1, $txnType, $ts )
@@ -196,7 +196,7 @@ function pn_updateOrderStatusAndHistory( $pnData, $zcOrderId, $newStatus = 1, $t
         WHERE `orders_id` = '". (int) $zcOrderId ."'";
     $db->Execute( $sql );
 
-    // Update Sage Pay Nowt order with new status
+    // Update Netcash Pay Nowt order with new status
     $sqlArray = array(
         'status' => $pnData['payment_status'],
         'status_date' => date( PN_FORMAT_DATETIME_DB, $ts ),
@@ -204,13 +204,13 @@ function pn_updateOrderStatusAndHistory( $pnData, $zcOrderId, $newStatus = 1, $t
     zen_db_perform(
         pn_getActiveTable(), $sqlArray, 'update', "zc_order_id='". $zcOrderId ."'" );
 
-    // Create new Sage Pay Now order status history record
+    // Create new Netcash Pay Now order status history record
     $sqlArray = array(
         'orders_id' => (int)$zcOrderId,
         'orders_status_id' => (int)$newStatus,
         'date_added' => date( PN_FORMAT_DATETIME_DB, $ts ),
         'customer_notified' => '0',
-        'comments' => 'Sage Pay Now status: '. $pnData['payment_status'],
+        'comments' => 'Netcash Pay Now status: '. $pnData['payment_status'],
        );
     zen_db_perform( TABLE_ORDERS_STATUS_HISTORY, $sqlArray );
 
@@ -242,7 +242,7 @@ function pn_updateOrderStatusAndHistory( $pnData, $zcOrderId, $newStatus = 1, $t
 /**
  * pn_removeExpiredSessions
  *
- * Removes sessions from the Sage Pay Now session table which are passed their
+ * Removes sessions from the Netcash Pay Now session table which are passed their
  * expiry date. Sessions will be left like this due to shopping cart
  * abandonment (ie. someone get's all the way to the order confirmation
  * page but fails to click "Confirm Order"). This will also happen when orders
@@ -251,7 +251,7 @@ function pn_updateOrderStatusAndHistory( $pnData, $zcOrderId, $newStatus = 1, $t
  * Won't be run every time it is called, but according to a probability
  * setting to ensure a non-excessive use of resources
  *
- * @param $pnData Array Array of posted Sage Pay Now data
+ * @param $pnData Array Array of posted Netcash Pay Now data
  * @param $zcOrderId Integer Order ID for ZenCart order
  */
 function pn_removeExpiredSessions()
@@ -267,7 +267,7 @@ function pn_removeExpiredSessions()
     {
         // Removed sessions passed their expiry date
         $sql =
-            "DELETE FROM `". TABLE_SAGEPAYNOW_SESSION ."`
+            "DELETE FROM `". TABLE_NETCASH_PAYNOW_SESSION ."`
             WHERE `expiry` < '". date( PN_FORMAT_DATETIME_DB ) ."'";
         $db->Execute( $sql );
     }

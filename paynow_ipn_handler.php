@@ -1,16 +1,16 @@
 <?php
 /**
- * sagepaynow_ipn_handler
+ * paynow_ipn_handler
  *
- * Callback handler for Sage Pay Now IPN
+ * Callback handler for Netcash Pay Now IPN
  *
  */
 
 // bof: Load ZenCart configuration
 $show_all_errors = false;
 
-$current_page_base = 'sagepaynowipn';
-$loaderPrefix = 'sagepaynow_ipn';
+$current_page_base = 'paynowipn';
+$loaderPrefix = 'paynow_ipn';
 
 require_once ('includes/configure.php');
 require_once ('includes/application_top.php');
@@ -21,7 +21,7 @@ $zcSessID = '';
 // eof: Load ZenCart configuration
 
 $show_all_errors = true;
-$logdir = defined ( 'DIR_FS_LOGS' ) ? DIR_FS_LOGS : 'includes/modules/payment/sagepaynow';
+$logdir = defined ( 'DIR_FS_LOGS' ) ? DIR_FS_LOGS : 'includes/modules/payment/paynow';
 $debug_logfile_path = $logdir . '/ipn_debug_php_errors-' . time () . '.log';
 @ini_set ( 'log_errors', 1 );
 @ini_set ( 'log_errors_max_len', 0 );
@@ -33,27 +33,27 @@ error_reporting ( version_compare ( PHP_VERSION, 5.3, '>=' ) ? E_ALL & ~ E_DEPRE
 $pnError = false;
 $pnErrMsg = '';
 $pnData = array ();
-$pnHost = (strcasecmp ( MODULE_PAYMENT_SAGEPAYNOW_SERVER, 'live' ) == 0) ? MODULE_PAYMENT_SAGEPAYNOW_SERVER_LIVE : MODULE_PAYMENT_SAGEPAYNOW_SERVER_TEST;
+$pnHost = (strcasecmp ( MODULE_PAYMENT_NETCASH_PAYNOW_SERVER, 'live' ) == 0) ? MODULE_PAYMENT_NETCASH_PAYNOW_SERVER_LIVE : MODULE_PAYMENT_NETCASH_PAYNOW_SERVER_TEST;
 $pnOrderId = '';
 $pnParamString = '';
-$pnDebugEmail = defined ( 'MODULE_PAYMENT_SAGEPAYNOW_DEBUG_EMAIL_ADDRESS' ) ? MODULE_PAYMENT_SAGEPAYNOW_DEBUG_EMAIL_ADDRESS : STORE_OWNER_EMAIL_ADDRESS;
+$pnDebugEmail = defined ( 'MODULE_PAYMENT_NETCASH_PAYNOW_DEBUG_EMAIL_ADDRESS' ) ? MODULE_PAYMENT_NETCASH_PAYNOW_DEBUG_EMAIL_ADDRESS : STORE_OWNER_EMAIL_ADDRESS;
 
-pnlog ( 'Sage Pay Now IPN call received' );
+pnlog ( 'Netcash Pay Now IPN call received' );
 
-// Notify Sage Pay Now that information has been received
+// Notify Netcash Pay Now that information has been received
 if (! $pnError) {
 	header ( 'HTTP/1.0 200 OK' );
 	flush ();
 }
 
-// Get data sent by Sage Pay Now
+// Get data sent by Netcash Pay Now
 if (! $pnError) {
 	pnlog ( 'Get posted data' );
 
 	// Posted variables from IPN
 	$pnData = pnGetData ();
 
-	pnlog ( 'Sage Pay Now Data: ' . print_r ( $pnData, true ) );
+	pnlog ( 'Netcash Pay Now Data: ' . print_r ( $pnData, true ) );
 
 	if ($pnData === false) {
 		$pnError = true;
@@ -87,13 +87,13 @@ if (! $pnError) {
 			// // bof: Get Saved Session
 			pnlog ( 'Retrieving saved session' );
 
-			// Get the Zen session name and ID from Sage Pay Now data
+			// Get the Zen session name and ID from Netcash Pay Now data
 			list ( $zcSessName, $zcSessID ) = explode ( '=', $pnData ['Extra1'] );
 
 			pnlog ( 'Session Name = ' . $zcSessName . ', Session ID = ' . $zcSessID );
 
 			$sql = "SELECT *
-                FROM `" . TABLE_SAGEPAYNOW_SESSION . "`
+                FROM `" . TABLE_NETCASH_PAYNOW_SESSION . "`
                 WHERE `session_id` = '" . $zcSessID . "'";
 			$storedSession = $db->Execute ( $sql );
 
@@ -176,7 +176,7 @@ if (! $pnError) {
 
 			// Check order amount
 			pnlog ( 'Checking if amounts are the same' );
-			// patch for multi-currency - AGB 19/07/13 - see also includes/modules/payment/sagepaynow.php
+			// patch for multi-currency - AGB 19/07/13 - see also includes/modules/payment/paynow.php
 			// if( !pnAmountsEqual( $pnData['amount_gross'], $order->info['total'] ) )
 			if (! pnAmountsEqual ( $pnData ['Amount'], $pn_order_total )) {
 				pnlog ( 'Amount mismatch: PN amount = ' . $pnData ['Amount'] . ', ZC amount = ' . $pn_order_total );
@@ -200,27 +200,27 @@ if (! $pnError) {
 			pnlog ( 'Creating Zen Cart order' );
 			$zcOrderId = $order->create ( $order_totals );
 
-			// Create Sage Pay Now order
-			pnlog ( 'Creating Sage Pay Now order' );
+			// Create Netcash Pay Now order
+			pnlog ( 'Creating Netcash Pay Now order' );
 			$sqlArray = pn_createOrderArray ( $pnData, $zcOrderId, $ts );
-			zen_db_perform ( TABLE_SAGEPAYNOW, $sqlArray );
+			zen_db_perform ( TABLE_NETCASH_PAYNOW, $sqlArray );
 
-			// Create Sage Pay Now history record
-			pnlog ( 'Creating Sage Pay Now payment status history record' );
+			// Create Netcash Pay Now history record
+			pnlog ( 'Creating Netcash Pay Now payment status history record' );
 			$pnOrderId = $db->Insert_ID ();
 
 			$sqlArray = pn_createOrderHistoryArray ( $pnData, $pnOrderId, $ts );
-			zen_db_perform ( TABLE_SAGEPAYNOW_PAYMENT_STATUS_HISTORY, $sqlArray );
+			zen_db_perform ( TABLE_NETCASH_PAYNOW_PAYMENT_STATUS_HISTORY, $sqlArray );
 
 			// Update order status (if required)
-			$newStatus = MODULE_PAYMENT_SAGEPAYNOW_ORDER_STATUS_ID;
+			$newStatus = MODULE_PAYMENT_NETCASH_PAYNOW_ORDER_STATUS_ID;
 
 			if ($pnData ['payment_status'] == 'PENDING') {
 				pnlog ( 'Setting Zen Cart order status to PENDING' );
-				$newStatus = MODULE_PAYMENT_SAGEPAYNOW_PROCESSING_STATUS_ID;
+				$newStatus = MODULE_PAYMENT_NETCASH_PAYNOW_PROCESSING_STATUS_ID;
 
 				$sql = "UPDATE " . TABLE_ORDERS . "
-                    SET `orders_status` = " . MODULE_PAYMENT_SAGEPAYNOW_PROCESSING_STATUS_ID . "
+                    SET `orders_status` = " . MODULE_PAYMENT_NETCASH_PAYNOW_PROCESSING_STATUS_ID . "
                     WHERE `orders_id` = '" . $zcOrderId . "'";
 				$db->Execute ( $sql );
 			}
@@ -233,7 +233,7 @@ if (! $pnError) {
 					'orders_status_id' => $newStatus,
 					'date_added' => date ( PN_FORMAT_DATETIME_DB, $ts ),
 					'customer_notified' => '0',
-					'comments' => 'Sage Pay Now status: ' . $pnData ['payment_status']
+					'comments' => 'Netcash Pay Now status: ' . $pnData ['payment_status']
 			);
 			zen_db_perform ( TABLE_ORDERS_STATUS_HISTORY, $sqlArray );
 
@@ -250,22 +250,22 @@ if (! $pnError) {
 			$_SESSION ['cart']->reset ( true );
 
 			// Deleting stored session information
-			$sql = "DELETE FROM `" . TABLE_SAGEPAYNOW_SESSION . "`
+			$sql = "DELETE FROM `" . TABLE_NETCASH_PAYNOW_SESSION . "`
                 WHERE `session_id` = '" . $zcSessID . "'";
 			$db->Execute ( $sql );
 
 			// Sending email to admin
 			if (PN_DEBUG) {
-				$subject = "Sage Pay Now IPN on your site";
-				$body = "Hi,\n\n" . "A Sage Pay Now transaction has been completed on your website\n" . "-------------------------------------------------------------\n" . "Site: " . STORE_NAME . " (" . HTTP_SERVER . DIR_WS_CATALOG . ")\n" . "Order ID: " . $zcOrderId . "\n".
+				$subject = "Netcash Pay Now IPN on your site";
+				$body = "Hi,\n\n" . "A Netcash Pay Now transaction has been completed on your website\n" . "-------------------------------------------------------------\n" . "Site: " . STORE_NAME . " (" . HTTP_SERVER . DIR_WS_CATALOG . ")\n" . "Order ID: " . $zcOrderId . "\n".
                     //"User ID: ". $db->f( 'user_id' ) ."\n".
                     // TODO Implement correct form fields
-                    "Sage Pay Now Transaction ID: " . $pnData ['RequestTrace'] . "\n" . "Sage Pay Now Payment Status: " . $pnData ['TransactionAccepted'] . "\n" . "Order Status Code: " . $newStatus;
+                    "Netcash Pay Now Transaction ID: " . $pnData ['RequestTrace'] . "\n" . "Netcash Pay Now Payment Status: " . $pnData ['TransactionAccepted'] . "\n" . "Order Status Code: " . $newStatus;
 				zen_mail ( STORE_OWNER, $pnDebugEmail, $subject, $body, STORE_OWNER, STORE_OWNER_EMAIL_ADDRESS, null, 'debug' );
 			}
 			pnlog("End of case 'new'");
-			//$redirectUrl = zen_href_link( FILENAME_CHECKOUT_PROCESS, 'referer=sagepaynow', 'SSL' );
-			$redirectUrl = zen_href_link( FILENAME_CHECKOUT_SUCCESS, 'referer=sagepaynow', 'SSL' );
+			//$redirectUrl = zen_href_link( FILENAME_CHECKOUT_PROCESS, 'referer=paynow', 'SSL' );
+			$redirectUrl = zen_href_link( FILENAME_CHECKOUT_SUCCESS, 'referer=paynow', 'SSL' );
 			pnlog("Redirecting to $redirectUrl");
 			// TODO Redirect
 			zen_redirect($redirectUrl);
@@ -280,9 +280,9 @@ if (! $pnError) {
 		case 'cleared' :
 
 			$sqlArray = pn_createOrderHistoryArray ( $pnData, $pnOrderId, $ts );
-			zen_db_perform ( TABLE_SAGEPAYNOW_PAYMENT_STATUS_HISTORY, $sqlArray );
+			zen_db_perform ( TABLE_NETCASH_PAYNOW_PAYMENT_STATUS_HISTORY, $sqlArray );
 
-			$newStatus = MODULE_PAYMENT_SAGEPAYNOW_ORDER_STATUS_ID;
+			$newStatus = MODULE_PAYMENT_NETCASH_PAYNOW_ORDER_STATUS_ID;
 			break;
 
 		/**
@@ -296,7 +296,7 @@ if (! $pnError) {
 		case 'update' :
 
 			$sqlArray = pn_createOrderHistoryArray ( $pnData, $pnOrderId, $ts );
-			zen_db_perform ( TABLE_SAGEPAYNOW_PAYMENT_STATUS_HISTORY, $sqlArray );
+			zen_db_perform ( TABLE_NETCASH_PAYNOW_PAYMENT_STATUS_HISTORY, $sqlArray );
 
 			break;
 
@@ -307,18 +307,18 @@ if (! $pnError) {
 		 */
 		case 'failed' :
 			// TODO fix pn_payment_id
-			$comments = 'Payment failed (Sage Pay Now id = ' . $pnData ['RequestTrace'] . ')';
+			$comments = 'Payment failed (Netcash Pay Now id = ' . $pnData ['RequestTrace'] . ')';
 			$sqlArray = pn_createOrderHistoryArray ( $pnData, $pnOrderId, $ts );
-			zen_db_perform ( TABLE_SAGEPAYNOW_PAYMENT_STATUS_HISTORY, $sqlArray );
+			zen_db_perform ( TABLE_NETCASH_PAYNOW_PAYMENT_STATUS_HISTORY, $sqlArray );
 
-			$newStatus = MODULE_PAYMENT_SAGEPAYNOW_PREPARE_ORDER_STATUS_ID;
+			$newStatus = MODULE_PAYMENT_NETCASH_PAYNOW_PREPARE_ORDER_STATUS_ID;
 
 			// Sending email to admin
-			$subject = "Sage Pay Now IPN Transaction on your site";
-			$body = "Hi,\n\n" . "A failed Sage Pay Now transaction on your website requires attention\n" . "--------------------------------------------------------------------\n" . "Site: " . STORE_NAME . " (" . HTTP_SERVER . DIR_WS_CATALOG . ")\n" . "Order ID: " . $zcOrderId . "\n".
+			$subject = "Netcash Pay Now IPN Transaction on your site";
+			$body = "Hi,\n\n" . "A failed Netcash Pay Now transaction on your website requires attention\n" . "--------------------------------------------------------------------\n" . "Site: " . STORE_NAME . " (" . HTTP_SERVER . DIR_WS_CATALOG . ")\n" . "Order ID: " . $zcOrderId . "\n".
                 //"User ID: ". $db->f( 'user_id' ) ."\n".
                 // TODO Fix pn_payment_id
-                "Sage Pay Now Transaction ID: " . $pnData ['RequestTrace'] . "\n" . "Sage Pay Now Payment Status: " . $pnData ['TransactionAccepted'] . "\n" . "Order Status Code: " . $newStatus;
+                "Netcash Pay Now Transaction ID: " . $pnData ['RequestTrace'] . "\n" . "Netcash Pay Now Payment Status: " . $pnData ['TransactionAccepted'] . "\n" . "Order Status Code: " . $newStatus;
 			zen_mail ( STORE_OWNER, $pnDebugEmail, $subject, $body, STORE_OWNER, STORE_OWNER_EMAIL_ADDRESS, null, 'debug' );
 
 			break;
@@ -350,14 +350,14 @@ if ($pnError) {
 	pnlog ( 'Error occurred: ' . $pnErrMsg );
 	pnlog ( 'Sending email notification' );
 
-	$subject = "Sage Pay Now IPN error: " . $pnErrMsg;
-	$body = "Hi,\n\n" . "An invalid Sage Pay Now transaction on your website requires attention\n" . "----------------------------------------------------------------------\n" . "Site: " . STORE_NAME . " (" . HTTP_SERVER . DIR_WS_CATALOG . ")\n" . "Remote IP Address: " . $_SERVER ['REMOTE_ADDR'] . "\n" . "Remote host name: " . gethostbyaddr ( $_SERVER ['REMOTE_ADDR'] ) . "\n" . "Order ID: " . $zcOrderId . "\n";
+	$subject = "Netcash Pay Now IPN error: " . $pnErrMsg;
+	$body = "Hi,\n\n" . "An invalid Netcash Pay Now transaction on your website requires attention\n" . "----------------------------------------------------------------------\n" . "Site: " . STORE_NAME . " (" . HTTP_SERVER . DIR_WS_CATALOG . ")\n" . "Remote IP Address: " . $_SERVER ['REMOTE_ADDR'] . "\n" . "Remote host name: " . gethostbyaddr ( $_SERVER ['REMOTE_ADDR'] ) . "\n" . "Order ID: " . $zcOrderId . "\n";
 	// "User ID: ". $db->f("user_id") ."\n";
 	// TODO Implement trace
 	if (isset ( $pnData ['pn_payment_id'] ))
-		$body .= "Sage Pay Now Transaction ID: " . $pnData ['pn_payment_id'] . "\n";
+		$body .= "Netcash Pay Now Transaction ID: " . $pnData ['pn_payment_id'] . "\n";
 	if (isset ( $pnData ['payment_status'] ))
-		$body .= "Sage Pay Now Payment Status: " . $pnData ['payment_status'] . "\n";
+		$body .= "Netcash Pay Now Payment Status: " . $pnData ['payment_status'] . "\n";
 	$body .= "\nError: " . $pnErrMsg . "\n";
 
 	switch ($pnErrMsg) {

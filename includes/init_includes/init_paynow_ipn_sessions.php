@@ -1,6 +1,6 @@
 <?php
 /**
- * Sage Pay Now IPN specific session stuff
+ * Netcash Pay Now IPN specific session stuff
  *
  * @package initSystem
  * @copyright Copyright 2003-2007 Zen Cart Development Team
@@ -25,7 +25,7 @@ pnlog(
 if( !$_POST )
 {
     pnlog( 'IPN Fatal Error :: No POST data available -- '.
-        'Most likely initiated by browser and not Sage Pay Now.' );
+        'Most likely initiated by browser and not Netcash Pay Now.' );
 }
 
 // TODO Is this sent or received? Should change to m4 or Extra1
