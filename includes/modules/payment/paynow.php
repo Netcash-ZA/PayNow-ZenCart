@@ -345,6 +345,7 @@ class paynow extends base
             'm5' => $full_name,
             'm6' => $order->customer['email_address'],
             'm9' => $order->customer['email_address'],
+            'm14' => "1",
             );
 
         pnlog( "Data to send (location process_button):\n". print_r( $data, true ) );
