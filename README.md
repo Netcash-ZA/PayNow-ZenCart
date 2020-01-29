@@ -27,27 +27,34 @@ Configuration
 
 Prerequisites:
 
-To transact with this module, you will need:
-* Netcash login credentials
-* Netcash Pay Now Service key
-* Zen Cart admin login credentials
+You will need:
+* Netcash account
+* Pay Now service activated
+* Netcash account login credentials (with the appropriate permissions setup)
+* Netcash - Pay Now Service key
+* Cart admin login credentials
 
-A. Netcash Pay Now Gateway Server Configuration Steps:
-
-1. Log into your Netcash 
+A. Netcash Account Configuration Steps:
+1. Log into your Netcash account:
 	https://merchant.netcash.co.za/SiteLogin.aspx
-2. Type in your Netcash Username, Password, and PIN
-2. Click on Account Profile
-3. Click on NetConnector
-4. Click on Pay Now
-5. Click "Active:"
-6. Type in your Email address
-7. Click "Allow credit card payments:"
+2. Type in your Username, Password, and PIN
+2. Click on ACCOUNT PROFILE on the top menu
+3. Select NETCONNECTOR from tghe left side menu
+4. Click on PAY NOW from the subsection
+5. ACTIVATE the Pay Now service
+6. Type in your EMAIL address
+7. It is highly advisable to activate test mode & ignore errors while testing
+8. Select the PAYMENT OPTIONS required (only the options selected will be displayed to the end user)
+9. Remember to remove the "Make Test Mode Active" indicator to accept live payments
 
-8. The Accept, Decline, Notify and Redirect URLs should all be:
+* For immediate assistance contact Netcash on 0861 338 338
+
+10. Click SAVE and COPY your Pay Now Service Key
+
+11. The Accept, Decline, Notify and Redirect URLs should all be:
 	> http://zen_cart_installation/paynow_ipn_handler.php
 
-10. It is highly recommended that you "Make test mode active:" while you are still testing your site.
+12. It is highly recommended that you "Make test mode active:" while you are still testing your site.
 
 B. Zen Cart Steps:
 
