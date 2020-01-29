@@ -8,14 +8,12 @@ Introduction
 
 Zen Cart is an online store management system based on PHP and MySQL and is freely available under the GNU General Public License.
 
-This is Sage Pay South Africa's Pay Now credit card gateway module for Zen Cart. The module gives you to ability to use the Netcash Pay Now gateway that in turns lets you process credit card transactions. Netcash Pay Now supports VISA and MasterCard.
+This is Netcash South Africa's Pay Now credit card gateway module for Zen Cart. The module gives you to ability to use the Netcash Pay Now gateway that in turns lets you process credit card transactions. Netcash Pay Now supports VISA and MasterCard.
 
 Installation Instructions
 -------------------------
 
-Download the files from Github and extract them into the corresponding folders of your Zen Cart installation:
-* Version < v1.5.4 https://github.com/SagePay/PayNow-SimpleCart/archive/master.zip
-* Version > v1.5.4 https://github.com/SagePay/PayNow-SimpleCart/archive/v1.2.0.zip
+Download the files from Github and extract them into the corresponding folders of your Zen Cart installation
 
 There are three folders that require have files in, namely:
 * admin /zcadmin
@@ -30,17 +28,17 @@ Configuration
 Prerequisites:
 
 To transact with this module, you will need:
-* Netcash Pay Now login credentials
+* Netcash login credentials
 * Netcash Pay Now Service key
 * Zen Cart admin login credentials
 
 A. Netcash Pay Now Gateway Server Configuration Steps:
 
-1. Log into your Netcash Pay Now Gateway Server configuration page:
+1. Log into your Netcash 
 	https://merchant.netcash.co.za/SiteLogin.aspx
 2. Type in your Netcash Username, Password, and PIN
 2. Click on Account Profile
-3. Click NetConnector
+3. Click on NetConnector
 4. Click on Pay Now
 5. Click "Active:"
 6. Type in your Email address
