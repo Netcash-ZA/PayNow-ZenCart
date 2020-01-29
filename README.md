@@ -38,9 +38,9 @@ A. Netcash Pay Now Gateway Server Configuration Steps:
 
 1. Log into your Netcash Pay Now Gateway Server configuration page:
 	https://merchant.netcash.co.za/SiteLogin.aspx
-2. Type in your Sage Pay Username, Password, and PIN
+2. Type in your Netcash Username, Password, and PIN
 2. Click on Account Profile
-3. Click Sage Connect
+3. Click NetConnector
 4. Click on Pay Now
 5. Click "Active:"
 6. Type in your Email address
@@ -58,16 +58,16 @@ B. Zen Cart Steps:
 3. Click on "NetcashPayNow"
 4. Click '+ install Module' on the right hand side to install the module
 5. Click 'True' to enable the module
-6. Type in your Sage Pay service key
+6. Type in your Netcash service key
 7. Click 'update' when you are done
 
 You are now ready to process credit card transaction with Netcash Pay Now.
 
-Remember to turn of "Make test mode active:" in the Sage Pay backend when you are ready to go live.
+Remember to turn of "Make test mode active:" in the Netcash backend when you are ready to go live.
 
 Issues & Feature Requests
 -------------------------
 
 We welcome your feedback.
 
-Please contact Sage Pay South Africa with any questions or issues.
+Please contact Netcash South Africa with any questions or issues.
