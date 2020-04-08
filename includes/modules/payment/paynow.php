@@ -214,7 +214,7 @@ class paynow extends base
         // Netcash Pay Now identifiers
 
 		$serviceKey = MODULE_PAYMENT_NETCASH_PAYNOW_MERCHANT_KEY;
-		$vendorKey = '24ade73c-98cf-47b3-99be-cc7b867b3080';
+		$vendorKey = '51861d5f-43e8-4714-8e39-2baf5c0a98ee';
 
         // Create URLs
         $returnUrl = zen_href_link( FILENAME_CHECKOUT_PROCESS, 'referer=paynow', 'SSL' );
