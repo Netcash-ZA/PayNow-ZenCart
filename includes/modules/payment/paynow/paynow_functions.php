@@ -57,11 +57,7 @@ function pn_createUUID()
  */
 function pn_getActiveTable()
 {
-    if( strcasecmp( MODULE_PAYMENT_NETCASH_PAYNOW_SERVER, 'Live' ) == 0 )
-        $table = TABLE_NETCASH_PAYNOW;
-    else
-        $table = TABLE_NETCASH_PAYNOW_TESTING;
-
+    $table = TABLE_NETCASH_PAYNOW;
     return( $table );
 }
 
@@ -80,19 +76,20 @@ function pn_createOrderArray( $pnData = null, $zcOrderId = null, $timestamp = nu
     $ts = empty( $timestamp ) ? time() : $timestamp;
 	// TODO Some variables here out of scope
     $sqlArray = array(
-        'm_payment_id' => $pnData['m_payment_id'],
-        'pn_payment_id' => $pnData['pn_payment_id'],
+        'm_payment_id' => isset($pnData['RequestTrace']) ? $pnData['RequestTrace'] : '',
+        'pn_payment_id' => isset($pnData['Extra1']) ? $pnData['Extra1'] : '',
         'zc_order_id' => $zcOrderId,
-        'amount_gross' => $pnData['amount_gross'],
-        'amount_fee' => $pnData['amount_fee'],
-        'amount_net' => $pnData['amount_net'],
+        'amount_gross' => isset($pnData['Amount']) ? $pnData['Amount'] : 0.00,
+        'amount_fee' => 0.00,
+        'amount_net' => 0.00,
         'paynow_data' => serialize( $pnData ),
         'timestamp' => date( PN_FORMAT_DATETIME_DB, $ts ),
-        'status' => $pnData['payment_status'],
+        'status' => isset($pnData['TransactionAccepted']) ? strval($pnData['TransactionAccepted']) : 'false',
         'status_date' => date( PN_FORMAT_DATETIME_DB, $ts ),
-        'status_reason' => '',
+        'status_reason' => isset($pnData['Reason']) ? $pnData['Reason'] : '',
         );
 
+    pnlog( "pn_createOrderArray:\n". print_r( $sqlArray, true ) );
     return( $sqlArray );
 }
 
@@ -119,7 +116,7 @@ function pn_lookupTransaction( $pnData = null )
     $sql =
         "SELECT `id` AS `pn_order_id`, `zc_order_id`, `status`
         FROM `". pn_getActiveTable() ."`
-        WHERE `m_payment_id` = '". $pnData['m_payment_id'] ."'
+        WHERE `m_payment_id` = '". $pnData['RequestTrace'] ."'
         LIMIT 1";
     $orderData = $db->Execute( $sql );
 
@@ -137,14 +134,11 @@ function pn_lookupTransaction( $pnData = null )
     if( !$exists )
         $data['txn_type'] = 'new';
     // Current transaction is PENDING and has now cleared
-    elseif( $exists && $pnData['payment_status'] == 'COMPLETE' )
+    elseif( $exists && $pnData['payment_status'] == 'True' )
         $data['txn_type'] = 'cleared';
-    // Current transaction is PENDING and is still PENDING
-    elseif( $exists && $pnData['payment_status'] == 'PENDING' )
+    // Current transaction is not accepted / declined
+    elseif( $exists && $pnData['payment_status'] == 'False' )
         $data['txn_type'] = 'update';
-    // Current trasnaction is PENDING and has now failed
-    elseif( $exists && $pnData['payment_status'] == 'FAILED' )
-        $data['txn_type'] = 'failed';
     else
         $data['txn_type'] = 'unknown';
 
@@ -167,7 +161,7 @@ function pn_createOrderHistoryArray( $pnData = null, $pnOrderId = null, $timesta
     $sqlArray = array (
         'pn_order_id' => $pnOrderId,
         'timestamp' => date( PN_FORMAT_DATETIME_DB, $timestamp ),
-        'status' => $pnData['payment_status'],
+        'status' => $pnData['TransactionAccepted'],
         'status_reason' => '',
         );
 

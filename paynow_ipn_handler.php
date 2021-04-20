@@ -27,7 +27,8 @@ $debug_logfile_path = $logdir . '/ipn_debug_php_errors-' . time () . '.log';
 @ini_set ( 'log_errors_max_len', 0 );
 @ini_set ( 'display_errors', 0 ); // do not output errors to screen/browser/client (only to log file)
 @ini_set ( 'error_log', DIR_FS_CATALOG . $debug_logfile_path );
-error_reporting ( version_compare ( PHP_VERSION, 5.3, '>=' ) ? E_ALL & ~ E_DEPRECATED & ~ E_NOTICE : version_compare ( PHP_VERSION, 5.4, '>=' ) ? E_ALL & ~ E_DEPRECATED & ~ E_NOTICE & ~ E_STRICT : E_ALL & ~ E_NOTICE );
+//error_reporting ( version_compare ( PHP_VERSION, 5.3, '>=' ) ? E_ALL & ~ E_DEPRECATED & ~ E_NOTICE : version_compare ( PHP_VERSION, 5.4, '>=' ) ? E_ALL & ~ E_DEPRECATED & ~ E_NOTICE & ~ E_STRICT : E_ALL & ~ E_NOTICE );
+error_reporting ( E_ALL );
 
 // Variable Initialization
 $pnError = false;
@@ -92,9 +93,9 @@ if (! $pnError) {
 
 			pnlog ( 'Session Name = ' . $zcSessName . ', Session ID = ' . $zcSessID );
 
-			$sql = "SELECT *
-                FROM `" . TABLE_NETCASH_PAYNOW_SESSION . "`
-                WHERE `session_id` = '" . $zcSessID . "'";
+			$table = TABLE_NETCASH_PAYNOW_SESSION; $fieldKey = 'session_id'; $fieldValue = 'saved_session';
+			// $table = DB_PREFIX . 'sessions'; $fieldKey = 'sesskey'; $fieldValue = 'value';
+			$sql = "SELECT * FROM `{$table}` WHERE `{$fieldKey}` = '{$zcSessID}'";
 			$storedSession = $db->Execute ( $sql );
 
 			if ($storedSession->recordCount () < 1) {
@@ -102,16 +103,15 @@ if (! $pnError) {
 				$pnErrMsg = PN_ERR_NO_SESSION;
 				break;
 			} else {
-				$_SESSION = unserialize ( base64_decode ( $storedSession->fields ['saved_session'] ) );
+				$_SESSION = unserialize ( base64_decode ( $storedSession->fields [$fieldValue] ) );
 			}
 			// eof: Get Saved Session
 
 			// bof: Get ZenCart order details
 			pnlog ( 'Recreating Zen Cart order environment' );
-			if (defined ( DIR_WS_CLASSES )) {
+			if (defined ( 'DIR_WS_CLASSES' )) {
 				pnlog ( 'Additional debug information: DIR_WS_CLASSES is ' . DIR_WS_CLASSES );
 			} else {
-				// TODO Find out when this is needed as it alerts most of the time
 				pnlog ( ' ***ALERT*** DIR_WS_CLASSES IS NOT DEFINED, currently=' . DIR_WS_CLASSES );
 			}
 			if (isset ( $_SESSION )) {
@@ -255,7 +255,7 @@ if (! $pnError) {
 			$db->Execute ( $sql );
 
 			// Sending email to admin
-			if (PN_DEBUG) {
+			if (defined('PN_DEBUG') && PN_DEBUG) {
 				$subject = "Netcash Pay Now IPN on your site";
 				$body = "Hi,\n\n" . "A Netcash Pay Now transaction has been completed on your website\n" . "-------------------------------------------------------------\n" . "Site: " . STORE_NAME . " (" . HTTP_SERVER . DIR_WS_CATALOG . ")\n" . "Order ID: " . $zcOrderId . "\n".
                     //"User ID: ". $db->f( 'user_id' ) ."\n".
