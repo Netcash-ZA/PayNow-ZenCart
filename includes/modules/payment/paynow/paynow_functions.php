@@ -138,7 +138,7 @@ function pn_lookupTransaction( $pnData = null )
         $data['txn_type'] = 'cleared';
     // Current transaction is not accepted / declined
     elseif( $exists && $pnData['payment_status'] == 'False' )
-        $data['txn_type'] = 'update';
+        $data['txn_type'] = 'failed';
     else
         $data['txn_type'] = 'unknown';
 
