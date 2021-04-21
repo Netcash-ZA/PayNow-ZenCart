@@ -355,9 +355,9 @@ if ($pnError) {
 	// "User ID: ". $db->f("user_id") ."\n";
 	// TODO Implement trace
 	if (isset ( $pnData ['pn_payment_id'] ))
-		$body .= "Netcash Pay Now Transaction ID: " . $pnData ['pn_payment_id'] . "\n";
+		$body .= "Netcash Pay Now Transaction ID: " . $pnData ['RequestTrace'] . "\n";
 	if (isset ( $pnData ['payment_status'] ))
-		$body .= "Netcash Pay Now Payment Status: " . $pnData ['payment_status'] . "\n";
+		$body .= "Netcash Pay Now Payment Status: " . $pnData ['TransactionAccepted'] . "\n";
 	$body .= "\nError: " . $pnErrMsg . "\n";
 
 	switch ($pnErrMsg) {
@@ -375,4 +375,3 @@ if ($pnError) {
 
 // Close log
 pnlog ( '', true );
-?>

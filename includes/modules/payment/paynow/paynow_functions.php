@@ -74,10 +74,11 @@ function pn_createOrderArray( $pnData = null, $zcOrderId = null, $timestamp = nu
 {
     // Variable initialization
     $ts = empty( $timestamp ) ? time() : $timestamp;
-	// TODO Some variables here out of scope
+	// Get the Zen session name and ID from Netcash Pay Now data
+	list ( $zcSessName, $zcSessID ) = explode ( '=', $pnData ['Extra1'] );
     $sqlArray = array(
         'm_payment_id' => isset($pnData['RequestTrace']) ? $pnData['RequestTrace'] : '',
-        'pn_payment_id' => isset($pnData['Extra1']) ? $pnData['Extra1'] : '',
+        'pn_payment_id' => substr($zcSessID, 0, 36),
         'zc_order_id' => $zcOrderId,
         'amount_gross' => isset($pnData['Amount']) ? $pnData['Amount'] : 0.00,
         'amount_fee' => 0.00,
