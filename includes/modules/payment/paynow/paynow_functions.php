@@ -6,10 +6,10 @@
  *
  */
 
+define( 'PN_DEBUG', true );
+
 // Posting URLs
-// TODO Remove LIVE/TEST references as they are not used
-define( 'MODULE_PAYMENT_NETCASH_PAYNOW_SERVER_LIVE', 'www.netcash.co.za' );
-define( 'MODULE_PAYMENT_NETCASH_PAYNOW_SERVER_TEST', 'www.netcash.co.za' );
+define( 'MODULE_PAYMENT_NETCASH_PAYNOW_SERVER', 'www.netcash.co.za' );
 
 // Database tables
 define( 'TABLE_NETCASH_PAYNOW', DB_PREFIX . 'paynow' );
