@@ -323,6 +323,7 @@ class paynow extends base
             'return_url' => $returnUrl,
             'cancel_url' => $cancelUrl,
             'notify_url' => $notifyUrl,
+            'Budget' => 'Y',
 
             // Customer details
             'name_first' => replace_accents( $order->customer['firstname'] ),
