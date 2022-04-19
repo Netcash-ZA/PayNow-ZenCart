@@ -18,6 +18,10 @@ require_once (DIR_WS_CLASSES . 'payment.php');
 
 $zcSessName = '';
 $zcSessID = '';
+
+zen_session_start();
+$session_started = true;
+
 // eof: Load ZenCart configuration
 
 $show_all_errors = true;
@@ -333,9 +337,23 @@ if (! $pnError) {
 		}
 	}
 
-	echo "Payment has failed. Reason: " . $pnData['Reason'] . "<br><br>";
-	$redirectUrlFailed = zen_href_link( FILENAME_CHECKOUT_PAYMENT, '', 'SSL' );
-	echo "<a href='$redirectUrlFailed'>Click here</a> to return to Zen Cart checkout";
+	global $messageStack;
+	if(!$messageStack) {
+		$messageStack = new messageStack();
+	}
+
+	$message = "Payment has failed. Reason: " . $pnData['Reason'];
+	if ($pnData['TransactionAccepted'] == 'false' && $pnErrMsg) {
+		// Show custom error message
+		$message = "Payment has failed. Reason: " . $pnErrMsg;
+	}
+	if($messageStack) {
+		$messageStack->add_session('checkout_payment', $message, 'error');
+	} else {
+		// admin/includes/classes/message_stack.php:50
+		$_SESSION['messageToStack'][] = array('text' => $message, 'type' => 'error');
+	}
+	zen_redirect(zen_href_link(FILENAME_CHECKOUT_PAYMENT, '', 'SSL', true, false));
 
 }
 
