@@ -268,10 +268,10 @@ function pn_removeExpiredSessions()
     }
 }
 
-function toZAR($amount) {
+function toZAR($amount, $currency_val = 1) {
     global $currencies;
 
-    $currency_val = 1; //$currencies->get_value($order->info['currency']);
+    // $currency_val = 1; //$currencies->get_value($order->info['currency']);
 
     // Convert to ZAR if ZAR is set up
     if( $currencies->get_value("ZAR") ) {

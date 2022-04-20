@@ -126,56 +126,34 @@ if (! $pnError) {
 
 				// Load ZenCart shipping class
 				require_once (DIR_WS_CLASSES . 'shipping.php');
-				pnlog ( __FILE__ . ' line ' . __LINE__ );
 				// Load ZenCart payment class
 				require_once (DIR_WS_CLASSES . 'payment.php');
 				$payment_modules = new payment ( $_SESSION ['payment'] );
-				pnlog ( __FILE__ . ' line ' . __LINE__ );
 				$shipping_modules = new shipping ( $_SESSION ['shipping'] );
-				pnlog ( __FILE__ . ' line ' . __LINE__ );
 				// Load ZenCart order class
 				require (DIR_WS_CLASSES . 'order.php');
 				$order = new order ();
-				pnlog ( __FILE__ . ' line ' . __LINE__ );
 				// Load ZenCart order_total class
 				require (DIR_WS_CLASSES . 'order_total.php');
 				$order_total_modules = new order_total ();
-				pnlog ( __FILE__ . ' line ' . __LINE__ );
 				$order_totals = $order_total_modules->process ();
 				// eof: Get ZenCart order details
-				pnlog ( __FILE__ . ' line ' . __LINE__ );
 				// bof: Check data against ZenCart order
-				pnlog ( 'Checking data against Zen Cart order' );
+				pnlog ( 'Checking data against Zen Cart order:' );
+				// pnlog ( print_r($order->info, true) );
 
 				global $currencies;
 				$pn_order_total = 0;
 				$products = $order->products;
 
-				// products
-	            // products
-	            for ($i = 0; $i < sizeof($products); $i++) {
-	                $qty_total = ($products[$i]['final_price'] * $products[$i]['qty']);
-	                $t = toZAR($qty_total);
-	                $pn_order_total += number_format($t, 2, '.', '');
-	            }
+				$pn_order_total = $order->info['total'];
 
-	            // shipping
-	            if ($order->info['shipping_method']) {
-	                $t = toZAR($order->info['shipping_cost']);
-	                $pn_order_total += number_format($t, 2, '.', '');
-	            }
+				if($order->info['currency'] !== 'ZAR') {
+					pnlog ( 'Convertion order total from ' . $order->info['currency'] . ' to ZAR. Was ' . $pn_order_total );
+					$pn_order_total = toZAR($pn_order_total, $order->info['currency_value']);
+					pnlog ( 'Convertion complete. Now: ' . $pn_order_total );
+				}
 
-	            //tax
-	            if ($order->info['tax'] > 0) {
-	                $t = toZAR($order->info['tax']);
-	                $pn_order_total += number_format($t, 2, '.', '');
-	            }
-	            // //coupons
-	//            $coupon_result = $this->check_coupons();
-	//            if ($coupon_result > 0) {
-	//                $t = toZAR($coupon_result);
-	//                $pn_order_total -= number_format($t, 2, '.', '');
-	//            }
 
 				// Check order amount
 				pnlog ( 'Checking if amounts are the same' );
