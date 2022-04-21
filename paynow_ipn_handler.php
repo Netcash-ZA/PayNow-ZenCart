@@ -100,6 +100,7 @@ if (! $pnError) {
 	}
 	// eof: Get Saved Session
 
+	$postedOrderId = isset($_POST['Extra2']) ? $_POST['Extra2'] : '';
 	if (!$pnError) {
 		switch ($txnType) {
 			/**
@@ -132,7 +133,7 @@ if (! $pnError) {
 				$shipping_modules = new shipping ( $_SESSION ['shipping'] );
 				// Load ZenCart order class
 				require (DIR_WS_CLASSES . 'order.php');
-				$order = new order ();
+				$order = new order ($postedOrderId);
 				// Load ZenCart order_total class
 				require (DIR_WS_CLASSES . 'order_total.php');
 				$order_total_modules = new order_total ();

@@ -274,33 +274,10 @@ class paynow extends base
                 '". date( PN_FORMAT_DATETIME_DB, $tsExpire ) ."' )";
         $db->Execute( $sql );
 
-        $order_total = 0;
+        $order_total = $order->info['total'];
         $products = $order->products;
 
-        // products
-        for ($i = 0; $i < sizeof($products); $i++) {
-            $qty_total = ($products[$i]['final_price'] * $products[$i]['qty']);
-            $t = toZAR($qty_total);
-            $order_total += number_format($t, 2, '.', '');
-        }
 
-        // shipping
-         if ($order->info['shipping_method']) {
-             $t = toZAR($order->info['shipping_cost']);
-             $order_total += number_format($t, 2, '.', '');
-         }
-
-         //tax
-         if ($order->info['tax'] > 0) {
-             $t = toZAR($order->info['tax']);
-             $order_total += number_format($t, 2, '.', '');
-         }
-        // //coupons
-//         $coupon_result = $this->check_coupons();
-//         if ($coupon_result > 0) {
-//             $t = toZAR($coupon_result);
-//             $order_total -= number_format($t, 2, '.', '');
-//         }
 
         // patch for multi-currency - AGB 19/07/13 - see also the ITN handler
         // $_SESSION['paynow_amount'] = number_format( $this->transaction_amount, $currencyDecPlaces, '.', '' );
@@ -310,7 +287,7 @@ class paynow extends base
         $mPaymentId = pn_createUUID();
 
         $customerName = replace_accents( $order->customer['firstname'] ) . ' ' . replace_accents( $order->customer['lastname'] );
-        $orderID = $mPaymentId;
+        $orderID = $order->getOrderId(); //$mPaymentId;
         $customerID = $order->customer['id']; // TODO: Not sure if this ID is pulling in correctly
         $sageGUID = "51861d5f-43e8-4714-8e39-2baf5c0a98ee";
 
@@ -330,21 +307,21 @@ class paynow extends base
             'name_last' => replace_accents( $order->customer['lastname'] ),
             'email_address' => $order->customer['email_address'],
 
-            'p3' => "Order ID {$orderID}",
+            'p3' => "Order ID {$mPaymentId}",
 
         	// [item_description] => 1 x Strong Widget = 10.00; 1 x Widget = 10.00; Shipping = 5.00; Total= 25.00;
             // 'item_description' => $description,
 
-            // 'p4' => $order_total,
-            'p4' => number_format( $this->transaction_amount, $currencyDecPlaces, '.', '' ),
+            'p4' => $order_total,
+            // 'p4' => number_format( $this->transaction_amount, $currencyDecPlaces, '.', '' ),
 
             'p2' => date('Ymd-His'),
             // 'p2' => $mPaymentId . '-' . date('Ymd'),
 
             //'currency_code' => $currency,
             'm4' => zen_session_name() .'='. zen_session_id(),
-            'm5' => $full_name,
-            'm6' => $order->customer['email_address'],
+            'm5' => $orderID,
+            // 'm6' => $order->customer['email_address'],
             'm9' => $order->customer['email_address'],
             'm14' => "1",
             );
