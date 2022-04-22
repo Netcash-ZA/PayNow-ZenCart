@@ -157,16 +157,15 @@ if (! $pnError) {
 
 
 				// Check order amount
-				pnlog ( 'Checking if amounts are the same' );
+				// pnlog ( 'Checking if amounts are the same' );
 				// patch for multi-currency - AGB 19/07/13 - see also includes/modules/payment/paynow.php
 				// if( !pnAmountsEqual( $pnData['amount_gross'], $order->info['total'] ) )
-				if (! pnAmountsEqual ( $pnData ['Amount'], $pn_order_total )) {
-					pnlog ( 'Amount mismatch: PN amount = ' . $pnData ['Amount'] . ', ZC amount = ' . $pn_order_total );
-
-					$pnError = true;
-					$pnErrMsg = PN_ERR_AMOUNT_MISMATCH;
-					break;
-				}
+				// if (! pnAmountsEqual ( $pnData ['Amount'], $pn_order_total )) {
+				// 	pnlog ( 'Amount mismatch: PN amount = ' . $pnData ['Amount'] . ', ZC amount = ' . $pn_order_total );
+				// 	$pnError = true;
+				// 	$pnErrMsg = PN_ERR_AMOUNT_MISMATCH;
+				// 	break;
+				// }
 				// eof: Check data against ZenCart order
 
 				// Check if Transaction was Accepted
