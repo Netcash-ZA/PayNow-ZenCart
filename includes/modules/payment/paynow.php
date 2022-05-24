@@ -265,6 +265,9 @@ class paynow extends base
             WHERE `session_id` = '". zen_db_input( zen_session_id() ) ."'";
         $db->Execute( $sql );
 
+        $_SESSION['paynow_amount'] = number_format( $this->transaction_amount, $currencyDecPlaces, '.', '' );
+
+        // TODO: Store session has no shipping info?
         $sql =
             "INSERT INTO ". TABLE_NETCASH_PAYNOW_SESSION ."
                 ( session_id, saved_session, expiry )
@@ -272,12 +275,10 @@ class paynow extends base
                 '". zen_db_input( zen_session_id() ) ."',
                 '". base64_encode( serialize( $_SESSION ) ) ."',
                 '". date( PN_FORMAT_DATETIME_DB, $tsExpire ) ."' )";
-        $db->Execute( $sql );
+        $res = $db->Execute( $sql );
 
         $order_total = $order->info['total'];
         $products = $order->products;
-
-
 
         // patch for multi-currency - AGB 19/07/13 - see also the ITN handler
         // $_SESSION['paynow_amount'] = number_format( $this->transaction_amount, $currencyDecPlaces, '.', '' );
@@ -297,15 +298,12 @@ class paynow extends base
             // Merchant fields
             'm1' => $serviceKey,
         	'm2' => $sageGUID, //$vendorKey,
-            'return_url' => $returnUrl,
-            'cancel_url' => $cancelUrl,
-            'notify_url' => $notifyUrl,
             'Budget' => 'Y',
 
             // Customer details
-            'name_first' => replace_accents( $order->customer['firstname'] ),
-            'name_last' => replace_accents( $order->customer['lastname'] ),
-            'email_address' => $order->customer['email_address'],
+            // 'name_first' => replace_accents( $order->customer['firstname'] ),
+            // 'name_last' => replace_accents( $order->customer['lastname'] ),
+            // 'email_address' => $order->customer['email_address'],
 
             'p3' => "Order ID {$mPaymentId}",
 
@@ -320,7 +318,7 @@ class paynow extends base
 
             //'currency_code' => $currency,
             'm4' => zen_session_name() .'='. zen_session_id(),
-            'm5' => $orderID,
+            'm5' => zen_session_id(),
             // 'm6' => $order->customer['email_address'],
             'm9' => $order->customer['email_address'],
             'm14' => "1",
