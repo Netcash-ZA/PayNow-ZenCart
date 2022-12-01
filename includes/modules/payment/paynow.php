@@ -52,7 +52,7 @@ class paynow extends base
      * @param int $paypal_ipn_id
      * @return paynow
      */
-    function paynow( $paypal_ipn_id = '' )
+    function __construct( $paypal_ipn_id = '' )
     {
         // Variable initialization
         global $order, $messageStack;
