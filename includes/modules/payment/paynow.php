@@ -9,6 +9,19 @@
 
 // Load dependency files
 define( 'PN_DEBUG', ( MODULE_PAYMENT_NETCASH_PAYNOW_DEBUG == 'True' ? true : false ) );
+
+if(!defined('MODULE_PAYMENT_NETCASH_PAYNOW_SORT_ORDER')) {
+    define( 'MODULE_PAYMENT_NETCASH_PAYNOW_SORT_ORDER', '0' );
+}
+
+if(!defined('MODULE_PAYMENT_NETCASH_PAYNOW_STATUS')) {
+    define( 'MODULE_PAYMENT_NETCASH_PAYNOW_STATUS', 'True' );
+}
+
+if(!defined('MODULE_PAYMENT_NETCASH_PAYNOW_ORDER_STATUS_ID')) {
+    define( 'MODULE_PAYMENT_NETCASH_PAYNOW_ORDER_STATUS_ID', '2' );
+}
+
 include_once( (IS_ADMIN_FLAG === true ? DIR_FS_CATALOG_MODULES : DIR_WS_MODULES ) . 'payment/paynow/paynow_common.inc');
 include_once( (IS_ADMIN_FLAG === true ? DIR_FS_CATALOG_MODULES : DIR_WS_MODULES ) . 'payment/paynow/paynow_functions.php');
 
