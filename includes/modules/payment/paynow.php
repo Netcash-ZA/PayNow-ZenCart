@@ -65,7 +65,7 @@ class paynow extends base
      * @param int $paypal_ipn_id
      * @return paynow
      */
-    function __construct( $paypal_ipn_id = '' )
+    function paynow( $paypal_ipn_id = '' )
     {
         // Variable initialization
         global $order, $messageStack;
@@ -226,8 +226,9 @@ class paynow extends base
 
         // Netcash Pay Now identifiers
 
-		$serviceKey = MODULE_PAYMENT_NETCASH_PAYNOW_MERCHANT_KEY;
-		$vendorKey = '51861d5f-43e8-4714-8e39-2baf5c0a98ee';
+        $serviceKey = MODULE_PAYMENT_NETCASH_PAYNOW_MERCHANT_KEY;
+        $vendorKey = '51861d5f-43e8-4714-8e39-2baf5c0a98ee';
+//       $vendorKey = '24ade73c-98cf-47b3-99be-cc7b867b3080';
 
         // Create URLs
         $returnUrl = zen_href_link( FILENAME_CHECKOUT_PROCESS, 'referer=paynow', 'SSL' );
@@ -293,6 +294,7 @@ class paynow extends base
         $order_total = $order->info['total'];
         $products = $order->products;
 
+
         // patch for multi-currency - AGB 19/07/13 - see also the ITN handler
         // $_SESSION['paynow_amount'] = number_format( $this->transaction_amount, $currencyDecPlaces, '.', '' );
         // $_SESSION['paynow_amount'] = number_format( $order_total, $currencyDecPlaces, '.', '' );
@@ -305,12 +307,16 @@ class paynow extends base
         $customerID = $order->customer['id']; // TODO: Not sure if this ID is pulling in correctly
         $sageGUID = "51861d5f-43e8-4714-8e39-2baf5c0a98ee";
 
+        // $confSQL = "select * from ".TABLE_NETCASH_PAYNOW_SESSION." where session_id = '" .zen_db_input(zen_session_id()) . "'";
+        // $storedSession = $db->Execute($confSQL);
+        // // $sess = $storedSession->fields['saved_session']
+
         $full_name = replace_accents( $order->customer['firstname'] . " " . $order->customer['lastname'] );
 
         $data = array(
             // Merchant fields
             'm1' => $serviceKey,
-        	'm2' => $sageGUID, //$vendorKey,
+            'm2' => $sageGUID, //$vendorKey,
             'Budget' => 'Y',
 
             // Customer details
@@ -320,7 +326,7 @@ class paynow extends base
 
             'p3' => "Order ID {$mPaymentId}",
 
-        	// [item_description] => 1 x Strong Widget = 10.00; 1 x Widget = 10.00; Shipping = 5.00; Total= 25.00;
+            // [item_description] => 1 x Strong Widget = 10.00; 1 x Widget = 10.00; Shipping = 5.00; Total= 25.00;
             // 'item_description' => $description,
 
             'p4' => $order_total,

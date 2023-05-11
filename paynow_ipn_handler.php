@@ -13,8 +13,12 @@ $current_page_base = 'paynowipn';
 $loaderPrefix = 'paynow_ipn';
 
 require_once ('includes/configure.php');
+
 require_once ('includes/application_top.php');
 require_once (DIR_WS_CLASSES . 'payment.php');
+// define('IS_ADMIN_FLAG', false);
+// require_once (dirname(__FILE__).'/includes/classes/' . 'payment.php');
+
 
 $zcSessName = '';
 $zcSessID = '';
@@ -196,7 +200,7 @@ if (! $pnError) {
 				// Update order status (if required)
 				$newStatus = MODULE_PAYMENT_NETCASH_PAYNOW_ORDER_STATUS_ID;
 
-				if ($pnData ['payment_status'] == 'PENDING') {
+				if (isset($pnData ['payment_status']) && $pnData ['payment_status'] == 'PENDING') {
 					pnlog ( 'Setting Zen Cart order status to PENDING' );
 					$newStatus = MODULE_PAYMENT_NETCASH_PAYNOW_PROCESSING_STATUS_ID;
 
