@@ -8,6 +8,9 @@
  */
 
 // Load dependency files
+if(!defined('MODULE_PAYMENT_NETCASH_PAYNOW_DEBUG')) {
+    define( 'MODULE_PAYMENT_NETCASH_PAYNOW_DEBUG', 'False' );
+}
 define( 'PN_DEBUG', ( MODULE_PAYMENT_NETCASH_PAYNOW_DEBUG == 'True' ? true : false ) );
 
 if(!defined('MODULE_PAYMENT_NETCASH_PAYNOW_SORT_ORDER')) {
